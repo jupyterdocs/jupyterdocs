@@ -1,4 +1,9 @@
 <x-guest-layout>
+    <div class="mb-5">
+        <h1 class="font-display font-bold text-xl text-pine">Create your account</h1>
+        <p class="mt-1.5 text-sm text-jd-ink-muted font-serif italic">Upload 3 documents, unlock every download.</p>
+    </div>
+
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
@@ -39,8 +44,8 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
+        <div class="flex items-center justify-end mt-5">
+            <a class="text-sm text-jd-ink-muted hover:text-pine rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss" href="{{ route('login') }}">
                 {{ __('Already registered?') }}
             </a>
 

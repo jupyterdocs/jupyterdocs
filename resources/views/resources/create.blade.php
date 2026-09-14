@@ -1,22 +1,22 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-display font-semibold text-xl text-pine leading-tight">
             {{ __('Upload a Resource') }}
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow-sm rounded-lg p-6">
+            <div class="bg-white border border-pine/10 shadow-sm rounded-xl p-6">
 
                 @auth
                     @if (! Auth::user()->canDownload())
-                        <div class="mb-4 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-800 px-4 py-2 text-sm">
+                        <div class="mb-4 rounded-lg bg-jd-surface-2 border border-moss/20 text-pine px-4 py-2 text-sm">
                             {{ __('Every upload gets you closer to unlocking downloads. You need :n more approved upload(s).', ['n' => Auth::user()->uploadsNeededToUnlockDownloads()]) }}
                         </div>
                     @endif
                 @else
-                    <div class="mb-4 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-800 px-4 py-2 text-sm">
+                    <div class="mb-4 rounded-lg bg-jd-surface-2 border border-moss/20 text-pine px-4 py-2 text-sm">
                         {{ __('Uploading works without an account. But to unlock downloads later, ') }}
                         <a href="{{ route('register') }}" class="font-semibold underline">{{ __('create an account') }}</a>
                         {{ __(' first so your uploads count toward your total.') }}
@@ -49,13 +49,13 @@
 
                     <div>
                         <x-input-label for="description" :value="__('Description')" />
-                        <textarea id="description" name="description" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('description') }}</textarea>
+                        <textarea id="description" name="description" rows="4" class="mt-1 block w-full rounded-lg border-pine/15 shadow-sm focus:border-moss focus:ring-moss font-display">{{ old('description') }}</textarea>
                         <x-input-error :messages="$errors->get('description')" class="mt-2" />
                     </div>
 
                     <div>
                         <x-input-label for="resource_type_id" :value="__('Resource type')" />
-                        <select id="resource_type_id" name="resource_type_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                        <select id="resource_type_id" name="resource_type_id" class="mt-1 block w-full rounded-lg border-pine/15 shadow-sm focus:border-moss focus:ring-moss font-display" required>
                             <option value="">{{ __('Select a type') }}</option>
                             @foreach ($resourceTypes as $type)
                                 <option value="{{ $type->id }}" @selected(old('resource_type_id') == $type->id)>{{ $type->name }}</option>
@@ -82,23 +82,23 @@
 
                     <div>
                         <x-input-label for="file" :value="__('File (PDF, Word, PowerPoint, Excel or text, max 20MB)')" />
-                        <input id="file" name="file" type="file" class="mt-1 block w-full text-sm" required>
+                        <input id="file" name="file" type="file" class="mt-1 block w-full text-sm font-display" required>
                         <x-input-error :messages="$errors->get('file')" class="mt-2" />
-                        <p id="thumbnail_status" class="mt-1 text-xs text-gray-400"></p>
-                        <img id="thumbnail_preview" hidden class="mt-2 h-40 rounded border border-gray-200 object-cover" alt="Preview of first page">
+                        <p id="thumbnail_status" class="mt-1 text-xs text-jd-ink-muted font-mono"></p>
+                        <img id="thumbnail_preview" hidden class="mt-2 h-40 rounded-lg border border-pine/10 object-cover" alt="Preview of first page">
                         <input type="hidden" name="thumbnail_data" id="thumbnail_data">
                         <input type="hidden" name="pages" id="pages_field">
                     </div>
 
                     <div class="flex items-start gap-2">
-                        <input id="confirm_ownership" name="confirm_ownership" type="checkbox" class="mt-1 rounded border-gray-300" required>
-                        <label for="confirm_ownership" class="text-sm text-gray-600">
+                        <input id="confirm_ownership" name="confirm_ownership" type="checkbox" class="mt-1 rounded border-pine/20 text-moss focus:ring-moss" required>
+                        <label for="confirm_ownership" class="text-sm text-jd-ink-muted">
                             {{ __('I confirm that I have the right to distribute this material.') }}
                         </label>
                     </div>
                     <x-input-error :messages="$errors->get('confirm_ownership')" class="mt-2" />
 
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
+                    <button type="submit" class="inline-flex items-center px-5 py-2.5 bg-moss text-jd-bg rounded-lg text-sm font-display font-semibold hover:bg-cypress transition">
                         {{ __('Upload') }}
                     </button>
                 </form>
