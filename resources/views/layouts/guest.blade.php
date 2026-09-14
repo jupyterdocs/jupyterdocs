@@ -1,11 +1,22 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'JupyterDocs') }}</title>
+
+        <!-- Applied before paint so the stored theme choice never flashes the wrong one -->
+        <script>
+            (function () {
+                try {
+                    if (localStorage.getItem('jd-theme') === 'light') {
+                        document.documentElement.classList.remove('dark');
+                    }
+                } catch (e) {}
+            })();
+        </script>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,26 +25,58 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-display text-pine antialiased">
+    <body class="font-display text-pine dark:text-mint antialiased">
         <x-brand-mark-defs />
 
-        <div class="min-h-screen flex flex-col bg-jd-bg">
-            <header class="px-6 py-5">
-                <a href="/" class="inline-flex items-center gap-2 text-pine">
+        <div class="min-h-screen flex flex-col bg-jd-bg dark:bg-abyss transition-colors">
+            <header class="px-6 py-5 flex items-center justify-between">
+                <a href="/" class="inline-flex items-center gap-2 text-pine dark:text-mint">
                     <svg class="w-7 h-7" viewBox="0 0 640 640"><use href="#jupyterMark"/></svg>
-                    <span class="font-bold text-base">Jupyter<span class="text-jd-ink-muted font-medium">Docs</span></span>
+                    <span class="font-bold text-base">Jupyter<span class="text-jd-ink-muted dark:text-sage font-medium">Docs</span></span>
                 </a>
+                <button
+                    type="button"
+                    id="theme-toggle"
+                    aria-label="Toggle light and dark theme"
+                    class="flex items-center gap-1.5 rounded-full border border-pine/15 dark:border-mint/15 bg-jd-surface-2 dark:bg-cypress px-3 py-1.5 text-xs font-display font-medium text-pine dark:text-mint"
+                >
+                    <span id="theme-toggle-label">Dark</span>
+                </button>
             </header>
 
             <div class="flex-1 flex flex-col items-center justify-center px-6 pb-12">
                 <svg class="w-16 h-16 mb-6" viewBox="0 0 640 640" style="filter: drop-shadow(0 12px 24px rgba(11,43,38,0.16))"><use href="#jupyterMark"/></svg>
 
-                <div class="w-full sm:max-w-md bg-white border border-pine/10 shadow-[0_16px_40px_rgba(11,43,38,0.10)] rounded-2xl px-6 py-6 sm:px-8 sm:py-8">
+                <div class="w-full sm:max-w-md bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-[0_16px_40px_rgba(11,43,38,0.10)] rounded-2xl px-6 py-6 sm:px-8 sm:py-8">
                     {{ $slot }}
                 </div>
 
-                <p class="mt-6 text-xs text-jd-ink-muted font-mono">Academic resource marketplace</p>
+                <p class="mt-6 text-xs text-jd-ink-muted dark:text-sage font-mono">Academic resource marketplace</p>
             </div>
         </div>
+
+        <script>
+            (function () {
+                var root = document.documentElement;
+                var btn = document.getElementById('theme-toggle');
+                var label = document.getElementById('theme-toggle-label');
+                var STORE_KEY = 'jd-theme';
+
+                function apply(theme) {
+                    root.classList.toggle('dark', theme !== 'light');
+                    if (label) label.textContent = theme === 'light' ? 'Light' : 'Dark';
+                }
+
+                apply(root.classList.contains('dark') ? 'dark' : 'light');
+
+                if (btn) {
+                    btn.addEventListener('click', function () {
+                        var next = root.classList.contains('dark') ? 'light' : 'dark';
+                        apply(next);
+                        try { localStorage.setItem(STORE_KEY, next); } catch (e) {}
+                    });
+                }
+            })();
+        </script>
     </body>
 </html>

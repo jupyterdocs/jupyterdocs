@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="mb-5">
-        <h1 class="font-display font-bold text-xl text-pine">Welcome back</h1>
-        <p class="mt-1.5 text-sm text-jd-ink-muted font-serif italic">Notes orbit. Knowledge compounds.</p>
+        <h1 class="font-display font-bold text-xl text-pine dark:text-mint">Welcome back</h1>
+        <p class="mt-1.5 text-sm text-jd-ink-muted dark:text-sage font-serif italic">Notes orbit. Knowledge compounds.</p>
     </div>
 
     <!-- Session Status -->
@@ -32,14 +32,14 @@
         <!-- Remember Me -->
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-pine/20 text-moss shadow-sm focus:ring-moss" name="remember">
-                <span class="ms-2 text-sm text-jd-ink-muted">{{ __('Remember me') }}</span>
+                <input id="remember_me" type="checkbox" class="rounded border-pine/20 dark:border-mint/20 text-moss dark:text-sage shadow-sm focus:ring-moss" name="remember">
+                <span class="ms-2 text-sm text-jd-ink-muted dark:text-sage">{{ __('Remember me') }}</span>
             </label>
         </div>
 
         <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
-                <a class="text-sm text-jd-ink-muted hover:text-pine rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss" href="{{ route('password.request') }}">
+                <a class="text-sm text-jd-ink-muted dark:text-sage hover:text-pine rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-moss" href="{{ route('password.request') }}">
                     {{ __('Forgot your password?') }}
                 </a>
             @endif

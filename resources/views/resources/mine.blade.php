@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-display font-semibold text-xl text-pine leading-tight">
+        <h2 class="font-display font-semibold text-xl text-pine dark:text-mint leading-tight">
             {{ __('My Uploads') }}
         </h2>
     </x-slot>
@@ -14,8 +14,8 @@
                 </div>
             @endif
 
-            <div class="bg-white border border-pine/10 shadow-sm rounded-xl p-4 text-sm text-jd-ink-muted">
-                {{ __('Approved uploads:') }} <span class="font-display font-semibold text-pine">{{ Auth::user()->approved_uploads_count }}</span>
+            <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-sm rounded-xl p-4 text-sm text-jd-ink-muted dark:text-sage">
+                {{ __('Approved uploads:') }} <span class="font-display font-semibold text-pine dark:text-mint">{{ Auth::user()->approved_uploads_count }}</span>
                 @unless (Auth::user()->canDownload())
                     &mdash; {{ __(':n more to unlock downloads.', ['n' => Auth::user()->uploadsNeededToUnlockDownloads()]) }}
                 @else
@@ -23,12 +23,12 @@
                 @endunless
             </div>
 
-            <div class="bg-white border border-pine/10 shadow-sm rounded-xl divide-y divide-pine/10">
+            <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-sm rounded-xl divide-y divide-pine/10 dark:divide-mint/10">
                 @forelse ($resources as $resource)
                     <div class="p-4 flex items-center justify-between gap-4">
                         <div>
-                            <a href="{{ route('resources.show', $resource) }}" class="font-display font-medium text-pine hover:underline">{{ $resource->title }}</a>
-                            <div class="text-xs text-jd-ink-muted font-mono">{{ $resource->resourceType->name }} &middot; {{ $resource->created_at->diffForHumans() }}</div>
+                            <a href="{{ route('resources.show', $resource) }}" class="font-display font-medium text-pine dark:text-mint hover:underline">{{ $resource->title }}</a>
+                            <div class="text-xs text-jd-ink-muted dark:text-sage font-mono">{{ $resource->resourceType->name }} &middot; {{ $resource->created_at->diffForHumans() }}</div>
                             @if ($resource->status === 'rejected' && $resource->rejected_reason)
                                 <div class="text-xs text-jd-danger mt-1">{{ __('Rejected:') }} {{ $resource->rejected_reason }}</div>
                             @endif
@@ -49,7 +49,7 @@
                         </span>
                     </div>
                 @empty
-                    <p class="p-4 text-jd-ink-muted">{{ __("You haven't uploaded anything yet.") }}</p>
+                    <p class="p-4 text-jd-ink-muted dark:text-sage">{{ __("You haven't uploaded anything yet.") }}</p>
                 @endforelse
             </div>
 
