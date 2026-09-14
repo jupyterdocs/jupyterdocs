@@ -29,31 +29,8 @@
     <body class="font-display antialiased bg-jd-bg text-pine dark:bg-abyss dark:text-mint transition-colors">
         <x-brand-mark-defs />
 
-        <!-- ============ Nav ============ -->
-        <nav class="sticky top-0 z-30 backdrop-blur border-b border-pine/10 dark:border-mint/10 bg-jd-bg/80 dark:bg-abyss/80">
-            <div class="max-w-6xl mx-auto px-5 py-3.5 flex items-center gap-4">
-                <a href="{{ route('home') }}" class="flex items-center gap-2 font-bold shrink-0">
-                    <svg class="w-6 h-6" viewBox="0 0 640 640"><use href="#jupyterMark"/></svg>
-                    Jupyter<span class="text-jd-ink-muted dark:text-sage font-medium">Docs</span>
-                </a>
-                <div class="hidden sm:flex gap-1 ml-2">
-                    <a href="#how-it-works" class="px-2.5 py-2 rounded-lg text-sm font-medium text-jd-ink-muted dark:text-sage hover:bg-jd-surface-2 dark:hover:bg-cypress hover:text-pine dark:hover:text-mint transition">How it works</a>
-                    <a href="{{ route('resources.index') }}" class="px-2.5 py-2 rounded-lg text-sm font-medium text-jd-ink-muted dark:text-sage hover:bg-jd-surface-2 dark:hover:bg-cypress hover:text-pine dark:hover:text-mint transition">Archive</a>
-                </div>
-                <div class="ml-auto flex items-center gap-2.5">
-                    <a href="{{ route('login') }}" class="hidden sm:inline text-sm font-medium text-jd-ink-muted dark:text-sage hover:text-pine dark:hover:text-mint">Sign in</a>
-                    <a href="{{ route('resources.create') }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold bg-moss text-jd-bg hover:bg-cypress dark:bg-sage dark:text-pine dark:hover:bg-mint transition">Upload a document</a>
-                    <button
-                        type="button"
-                        id="theme-toggle"
-                        aria-label="Toggle light and dark theme"
-                        class="flex items-center gap-1.5 rounded-full border border-pine/15 dark:border-mint/15 bg-jd-surface-2 dark:bg-cypress px-3 py-1.5 text-xs font-medium text-pine dark:text-mint"
-                    >
-                        <span id="theme-toggle-label">Dark</span>
-                    </button>
-                </div>
-            </div>
-        </nav>
+        {{-- Same navigation partial as the rest of the app, so it never changes as you move from here into the archive. --}}
+        @include('layouts.navigation')
 
         <!-- ============ Hero ============ -->
         <header class="relative overflow-hidden border-b border-pine/10 dark:border-mint/10">
@@ -91,7 +68,7 @@
 
         <main>
             <!-- ============ How it works ============ -->
-            <section id="how-it-works" class="max-w-6xl mx-auto px-5 py-16 sm:py-20 border-b border-pine/10 dark:border-mint/10">
+            <section class="max-w-6xl mx-auto px-5 py-16 sm:py-20 border-b border-pine/10 dark:border-mint/10">
                 <div class="max-w-[60ch] mb-10">
                     <p class="text-xs font-semibold tracking-[0.13em] uppercase text-jd-ink-muted dark:text-sage">How it works</p>
                     <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mt-2">Three steps, no paywall</h2>
@@ -189,27 +166,5 @@
                 <span class="font-serif italic text-sm text-jd-ink-muted dark:text-sage">Notes orbit. Knowledge compounds.</span>
             </div>
         </footer>
-
-        <script>
-            (function () {
-                var root = document.documentElement;
-                var btn = document.getElementById('theme-toggle');
-                var label = document.getElementById('theme-toggle-label');
-                var STORE_KEY = 'jd-theme';
-
-                function apply(theme) {
-                    root.classList.toggle('dark', theme !== 'light');
-                    label.textContent = theme === 'light' ? 'Light' : 'Dark';
-                }
-
-                apply(root.classList.contains('dark') ? 'dark' : 'light');
-
-                btn.addEventListener('click', function () {
-                    var next = root.classList.contains('dark') ? 'light' : 'dark';
-                    apply(next);
-                    try { localStorage.setItem(STORE_KEY, next); } catch (e) {}
-                });
-            })();
-        </script>
     </body>
 </html>

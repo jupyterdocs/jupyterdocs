@@ -6,17 +6,24 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResourceController;
 use Illuminate\Support\Facades\Route;
 
-// Marketing landing page for guests; signed-in users go straight to the archive.
+// Marketing landing page for guests; signed-in users go straight to their dashboard.
 Route::get('/', function () {
-    return auth()->check()
-        ? redirect()->route('resources.index')
-        : view('welcome');
+    if (! auth()->check()) {
+        return view('welcome');
+    }
+
+    return auth()->user()->isAdmin()
+        ? redirect()->route('admin.moderation.index')
+        : redirect()->route('resources.index');
 })->name('home');
 
 Route::get('/browse', [ResourceController::class, 'index'])->name('resources.index');
 
+// Admins land on the moderation queue; everyone else lands on the archive.
 Route::get('/dashboard', function () {
-    return redirect()->route('resources.index');
+    return auth()->user()->isAdmin()
+        ? redirect()->route('admin.moderation.index')
+        : redirect()->route('resources.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Open to everyone, including guests, so uploading has as little friction as possible.
