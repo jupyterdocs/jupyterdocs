@@ -6,10 +6,17 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResourceController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [ResourceController::class, 'index'])->name('home');
+// Marketing landing page for guests; signed-in users go straight to the archive.
+Route::get('/', function () {
+    return auth()->check()
+        ? redirect()->route('resources.index')
+        : view('welcome');
+})->name('home');
+
+Route::get('/browse', [ResourceController::class, 'index'])->name('resources.index');
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return redirect()->route('resources.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Open to everyone, including guests, so uploading has as little friction as possible.

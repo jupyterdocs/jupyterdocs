@@ -14,7 +14,7 @@
                 </div>
             @endif
 
-            <form method="GET" action="{{ route('home') }}" class="bg-white border border-pine/10 shadow-sm rounded-xl p-4 flex flex-wrap gap-3 items-end">
+            <form method="GET" action="{{ route('resources.index') }}" class="bg-white border border-pine/10 shadow-sm rounded-xl p-4 flex flex-wrap gap-3 items-end">
                 <div class="flex-1 min-w-[200px]">
                     <label class="block text-sm font-display font-medium text-pine">{{ __('Search') }}</label>
                     <input type="text" name="q" value="{{ $q }}" placeholder="Title, description, course, tag..."
