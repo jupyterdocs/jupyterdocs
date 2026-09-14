@@ -8,6 +8,8 @@ use App\Models\Resource;
 use App\Models\ResourceType;
 use App\Models\Tag;
 use App\Models\University;
+use App\Support\OfficeDocumentInspector;
+use App\Support\ThumbnailStorage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -79,7 +81,7 @@ class ResourceController extends Controller
     {
         abort_unless($resource->isPreviewableBy(auth()->user()), 403);
 
-        return $this->streamInline($resource);
+        return view('resources.preview', ['resource' => $resource]);
     }
 
     private function streamInline(Resource $resource)
@@ -106,6 +108,26 @@ class ResourceController extends Controller
 
         $file = $request->file('file');
         $path = $file->store('resources', 'local');
+        $format = $file->getClientOriginalExtension();
+
+        $thumbnailPath = ThumbnailStorage::storeFromDataUrl($validated['thumbnail_data'] ?? null);
+        $pages = $validated['pages'] ?? null;
+
+        // PDF thumbnails/page counts come from the browser (pdf.js) above.
+        // PowerPoint/Word/Excel files are zip archives that often embed a
+        // ready-made thumbnail and, for pptx/docx, their true page count —
+        // pull those out server-side when the client didn't already send one.
+        if (in_array($format, ['pptx', 'docx', 'xlsx'], true)) {
+            $absolutePath = Storage::disk('local')->path($path);
+
+            if (! $thumbnailPath && $binary = OfficeDocumentInspector::extractThumbnail($absolutePath)) {
+                $thumbnailPath = ThumbnailStorage::storeFromBinary($binary);
+            }
+
+            if (! $pages) {
+                $pages = OfficeDocumentInspector::extractPageCount($absolutePath, $format);
+            }
+        }
 
         $resource = Resource::create([
             'uploader_id' => auth()->id(),
@@ -117,10 +139,10 @@ class ResourceController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'file_path' => $path,
-            'thumbnail_path' => $this->storeThumbnailFromDataUrl($validated['thumbnail_data'] ?? null),
+            'thumbnail_path' => $thumbnailPath,
             'file_size' => $file->getSize(),
-            'format' => $file->getClientOriginalExtension(),
-            'pages' => $validated['pages'] ?? null,
+            'format' => $format,
+            'pages' => $pages,
         ]);
 
         if (! empty($validated['tags'])) {
@@ -154,51 +176,6 @@ class ResourceController extends Controller
             ->paginate(15);
 
         return view('resources.mine', ['resources' => $resources]);
-    }
-
-    private function storeThumbnailFromDataUrl(?string $dataUrl): ?string
-    {
-        if (! $dataUrl || ! str_contains($dataUrl, ',')) {
-            return null;
-        }
-
-        [, $encoded] = explode(',', $dataUrl, 2);
-        $binary = base64_decode($encoded, true);
-
-        if ($binary === false) {
-            return null;
-        }
-
-        // Never trust client-supplied "image" bytes directly: decode through GD
-        // and re-encode, which discards anything that isn't a real raster image.
-        $image = @imagecreatefromstring($binary);
-
-        if ($image === false) {
-            return null;
-        }
-
-        $maxWidth = 400;
-        $width = imagesx($image);
-        $height = imagesy($image);
-
-        if ($width > $maxWidth) {
-            $newHeight = (int) round($height * ($maxWidth / $width));
-            $resized = imagecreatetruecolor($maxWidth, $newHeight);
-            imagecopyresampled($resized, $image, 0, 0, 0, 0, $maxWidth, $newHeight, $width, $height);
-            imagedestroy($image);
-            $image = $resized;
-        }
-
-        $path = 'thumbnails/'.Str::random(40).'.jpg';
-
-        ob_start();
-        imagejpeg($image, null, 80);
-        $jpeg = ob_get_clean();
-        imagedestroy($image);
-
-        Storage::disk('public')->put($path, $jpeg);
-
-        return $path;
     }
 
     private function firstOrCreateByName(string $modelClass, ?string $name)
