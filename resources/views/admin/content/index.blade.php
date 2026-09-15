@@ -13,7 +13,10 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 <x-admin.stat-card label="Total Documents" :value="$totals['total_resources']" />
                 <x-admin.stat-card label="Total Downloads" :value="$totals['total_downloads']" />
-                <x-admin.stat-card label="Storage Used" :value="round($totals['total_storage_bytes'] / 1048576)" />
+                <div class="block bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-sm rounded-xl p-4">
+                    <div class="text-xs font-display font-medium text-jd-ink-muted dark:text-sage uppercase tracking-wide">{{ __('Storage Used') }}</div>
+                    <div class="mt-1 text-2xl font-display font-bold text-pine dark:text-mint">{{ \App\Support\Format::bytes($totals['total_storage_bytes']) }}</div>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -21,10 +24,13 @@
                 <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-sm rounded-xl p-4">
                     <h3 class="font-display font-semibold text-pine dark:text-mint mb-3">{{ __('By File Type') }}</h3>
                     <div class="space-y-2">
-                        @forelse ($byFormat as $format => $total)
+                        @forelse ($byFormat as $format => $row)
                             <div class="flex items-center justify-between text-sm">
                                 <span class="font-mono uppercase text-jd-ink-muted dark:text-sage">{{ $format }}</span>
-                                <span class="font-display font-semibold text-pine dark:text-mint">{{ $total }}</span>
+                                <span class="text-right">
+                                    <span class="font-display font-semibold text-pine dark:text-mint">{{ $row->total }}</span>
+                                    <span class="block text-[11px] font-mono text-jd-ink-muted dark:text-sage">{{ \App\Support\Format::bytes($row->storage_bytes) }}</span>
+                                </span>
                             </div>
                         @empty
                             <p class="text-sm text-jd-ink-muted dark:text-sage">{{ __('No documents yet.') }}</p>

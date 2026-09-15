@@ -17,7 +17,7 @@
     <div class="{{ $classes }}">
 @endif
         <div class="text-xs font-display font-medium text-jd-ink-muted dark:text-sage uppercase tracking-wide">{{ $label }}</div>
-        <div class="mt-1 text-2xl font-display font-bold {{ $valueClass }}">{{ number_format($value) }}</div>
+        <div class="mt-1 text-2xl font-display font-bold {{ $valueClass }}">{{ number_format($value, floor($value) == $value ? 0 : 1) }}</div>
 @if ($href)
     </a>
 @else

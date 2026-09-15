@@ -12,10 +12,15 @@ class ContentController extends Controller
 {
     public function index()
     {
-        $byFormat = Resource::select('format', DB::raw('count(*) as total'))
+        $byFormat = Resource::select(
+                'format',
+                DB::raw('count(*) as total'),
+                DB::raw('coalesce(sum(file_size), 0) as storage_bytes')
+            )
             ->groupBy('format')
             ->orderByDesc('total')
-            ->pluck('total', 'format');
+            ->get()
+            ->keyBy('format');
 
         $typeCounts = Resource::select('resource_type_id', DB::raw('count(*) as total'))
             ->groupBy('resource_type_id')

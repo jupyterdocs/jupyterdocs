@@ -6,25 +6,30 @@ use App\Http\Controllers\Controller;
 use App\Models\Download;
 use App\Models\Resource;
 use App\Models\User;
+use App\Models\UserActivityLog;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $onlineThreshold = now()->subMinutes(5)->timestamp;
+        $onlineThreshold = now()->subMinutes(5);
 
         $statusCounts = Resource::select('status', DB::raw('count(*) as total'))
             ->groupBy('status')
             ->pluck('total', 'status');
 
+        $windowDays = 30;
+        $windowStart = now()->subDays($windowDays - 1)->toDateString();
+        $avgDailyActiveUsers = round(
+            UserActivityLog::where('activity_date', '>=', $windowStart)->count() / $windowDays,
+            1
+        );
+
         $stats = [
             'total_users' => User::count(),
-            'online_now' => DB::table('sessions')
-                ->whereNotNull('user_id')
-                ->where('last_activity', '>=', $onlineThreshold)
-                ->distinct('user_id')
-                ->count('user_id'),
+            'online_now' => User::where('last_seen_at', '>=', $onlineThreshold)->count(),
+            'avg_daily_active_users' => $avgDailyActiveUsers,
             'new_users_7d' => User::where('created_at', '>=', now()->subDays(7))->count(),
             'total_resources' => Resource::count(),
             'pending_review' => $statusCounts['pending'] ?? 0,

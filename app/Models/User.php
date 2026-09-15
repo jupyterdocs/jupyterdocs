@@ -45,6 +45,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_seen_at' => 'datetime',
         ];
     }
 
@@ -58,9 +59,38 @@ class User extends Authenticatable
         return $this->hasMany(Download::class);
     }
 
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(UserActivityLog::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function isOnline(): bool
+    {
+        return $this->last_seen_at && $this->last_seen_at->gte(now()->subMinutes(5));
+    }
+
+    public function totalActiveSeconds(): int
+    {
+        return (int) $this->activityLogs()->sum('seconds_active');
+    }
+
+    public function formattedTotalActiveTime(): string
+    {
+        $seconds = $this->totalActiveSeconds();
+
+        if ($seconds < 60) {
+            return $seconds.'s';
+        }
+
+        $hours = intdiv($seconds, 3600);
+        $minutes = intdiv($seconds % 3600, 60);
+
+        return $hours > 0 ? "{$hours}h {$minutes}m" : "{$minutes}m";
     }
 
     public function canDownload(): bool

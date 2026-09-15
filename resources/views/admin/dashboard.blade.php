@@ -14,6 +14,7 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 <x-admin.stat-card label="Total Users" :value="$stats['total_users']" />
                 <x-admin.stat-card label="Online Now" :value="$stats['online_now']" accent="jd-success" />
+                <x-admin.stat-card label="Avg Daily Active (30d)" :value="$stats['avg_daily_active_users']" />
                 <x-admin.stat-card label="New Users (7d)" :value="$stats['new_users_7d']" />
                 <x-admin.stat-card label="Total Resources" :value="$stats['total_resources']" />
                 <x-admin.stat-card label="Pending Review" :value="$stats['pending_review']" accent="jd-warning" :href="route('admin.moderation.index')" />
