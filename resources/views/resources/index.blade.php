@@ -54,7 +54,8 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 @forelse ($resources as $resource)
-                    <a href="{{ route('resources.show', $resource) }}" class="block bg-white dark:bg-pine shadow-sm rounded-xl overflow-hidden hover:shadow-md transition border border-pine/10 dark:border-mint/10">
+                    <div class="flex flex-col bg-white dark:bg-pine shadow-sm rounded-xl overflow-hidden hover:shadow-md transition border border-pine/10 dark:border-mint/10">
+                        <a href="{{ route('resources.show', $resource) }}" class="block">
                         <div class="relative bg-jd-surface-2 dark:bg-cypress h-48 flex items-center justify-center overflow-hidden">
                             <span class="absolute top-3 left-3 z-10 bg-pine dark:bg-abyss text-jd-bg dark:text-mint text-xs font-mono font-bold px-2 py-1 rounded">
                                 {{ strtoupper($resource->format) }}
@@ -67,15 +68,16 @@
                                 </svg>
                             @endif
                         </div>
-                        <div class="p-4">
+                        <div class="px-4 pt-4">
                             <h3 class="font-display font-bold text-pine dark:text-mint line-clamp-2 leading-snug">{{ $resource->title }}</h3>
                             <p class="mt-2 text-sm text-jd-ink-muted dark:text-sage font-serif">{{ __('Added by') }} {{ $resource->uploaderDisplayName() }}</p>
-                            <div class="mt-3 flex items-center justify-between text-sm text-jd-ink-muted dark:text-sage font-mono">
-                                <span>{{ $resource->pagesLabel() ?? $resource->resourceType->name }}</span>
-                                <span class="text-xs">{{ $resource->downloads_count }} {{ __('downloads') }}</span>
-                            </div>
                         </div>
-                    </a>
+                        </a>
+                        <div class="mt-auto px-4 pb-3 pt-2 flex items-center justify-between gap-2 text-sm text-jd-ink-muted dark:text-sage font-mono">
+                            <span class="min-w-0 truncate">{{ $resource->pagesLabel() ?? $resource->resourceType->name }} &middot; <span class="text-xs">{{ $resource->downloads_count }} {{ __('downloads') }}</span></span>
+                            <x-save-button :resource="$resource" :saved="in_array($resource->id, $savedIds, true)" class="shrink-0 -me-2" />
+                        </div>
+                    </div>
                 @empty
                     <p class="text-jd-ink-muted dark:text-sage col-span-full">{{ __('No resources found yet.') }}</p>
                 @endforelse
