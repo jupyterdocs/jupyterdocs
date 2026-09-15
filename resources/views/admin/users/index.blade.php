@@ -16,11 +16,16 @@
                 </div>
             @endif
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
                 <x-admin.stat-card label="Total Users" :value="$users->total()" />
                 <x-admin.stat-card label="Online Now" :value="$onlineCount" accent="jd-success" />
                 <x-admin.stat-card label="Avg Daily Active (30d)" :value="$avgDailyActiveUsers" />
                 <x-admin.stat-card label="Admins" :value="$adminCount" />
+                <div class="block bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-sm rounded-xl p-4 opacity-60">
+                    <div class="text-xs font-display font-medium text-jd-ink-muted dark:text-sage uppercase tracking-wide">{{ __('Paying Users') }}</div>
+                    <div class="mt-1 text-2xl font-display font-bold text-pine dark:text-mint">0</div>
+                    <div class="mt-0.5 text-[11px] text-jd-ink-muted dark:text-sage">{{ __('No payment system yet') }}</div>
+                </div>
             </div>
 
             {{-- Registrations per year --}}
