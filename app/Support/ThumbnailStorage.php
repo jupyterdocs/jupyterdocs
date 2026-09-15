@@ -50,7 +50,7 @@ class ThumbnailStorage
         $jpeg = ob_get_clean();
         imagedestroy($image);
 
-        Storage::disk('public')->put($path, $jpeg);
+        Storage::disk(config('filesystems.thumbnail_disk'))->put($path, $jpeg);
 
         return $path;
     }

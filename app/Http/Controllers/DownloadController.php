@@ -28,9 +28,11 @@ class DownloadController extends Controller
             $resource->increment('downloads_count');
         }
 
-        abort_unless(Storage::disk('local')->exists($resource->file_path), 404, 'File is missing.');
+        $disk = Storage::disk(config('filesystems.resource_disk'));
 
-        return Storage::disk('local')->download(
+        abort_unless($disk->exists($resource->file_path), 404, 'File is missing.');
+
+        return $disk->download(
             $resource->file_path,
             $resource->title.'.'.$resource->format
         );

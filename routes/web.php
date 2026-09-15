@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\ContentController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ModerationController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResourceController;
@@ -13,7 +16,7 @@ Route::get('/', function () {
     }
 
     return auth()->user()->isAdmin()
-        ? redirect()->route('admin.moderation.index')
+        ? redirect()->route('admin.dashboard')
         : redirect()->route('resources.index');
 })->name('home');
 
@@ -22,7 +25,7 @@ Route::get('/browse', [ResourceController::class, 'index'])->name('resources.ind
 // Admins land on the moderation queue; everyone else lands on the archive.
 Route::get('/dashboard', function () {
     return auth()->user()->isAdmin()
-        ? redirect()->route('admin.moderation.index')
+        ? redirect()->route('admin.dashboard')
         : redirect()->route('resources.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -42,6 +45,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/resources/{resource}/preview', [ResourceController::class, 'preview'])->name('resources.preview');
 
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::patch('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.role');
+
+        Route::get('/content', [ContentController::class, 'index'])->name('content.index');
+
         Route::get('/moderation', [ModerationController::class, 'index'])->name('moderation.index');
         Route::post('/moderation/{resource}/approve', [ModerationController::class, 'approve'])->name('moderation.approve');
         Route::post('/moderation/{resource}/reject', [ModerationController::class, 'reject'])->name('moderation.reject');

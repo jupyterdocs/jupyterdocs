@@ -24,8 +24,8 @@
                             {{ __('My Uploads') }}
                         </x-nav-link>
                         @if (Auth::user()->isAdmin())
-                            <x-nav-link :href="route('admin.moderation.index')" :active="request()->routeIs('admin.moderation.*')">
-                                {{ __('Moderation') }}
+                            <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
+                                {{ __('Admin') }}
                             </x-nav-link>
                         @endif
                     @endauth
@@ -114,8 +114,8 @@
                     {{ __('My Uploads') }}
                 </x-responsive-nav-link>
                 @if (Auth::user()->isAdmin())
-                    <x-responsive-nav-link :href="route('admin.moderation.index')" :active="request()->routeIs('admin.moderation.*')">
-                        {{ __('Moderation') }}
+                    <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
+                        {{ __('Admin') }}
                     </x-responsive-nav-link>
                 @endif
             @endauth

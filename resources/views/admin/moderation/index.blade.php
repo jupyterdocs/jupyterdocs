@@ -8,6 +8,8 @@
     <div class="py-12">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+            <x-admin.subnav />
+
             @if (session('status'))
                 <div class="rounded-lg bg-jd-success/10 border border-jd-success/20 text-jd-success px-4 py-3 text-sm">
                     {{ session('status') }}

@@ -21,32 +21,41 @@ class BackfillResourceThumbnails extends Command
             ->get();
 
         $updated = 0;
+        $disk = Storage::disk(config('filesystems.resource_disk'));
 
         foreach ($resources as $resource) {
-            if (! Storage::disk('local')->exists($resource->file_path)) {
+            if (! $disk->exists($resource->file_path)) {
                 $this->warn("Skipping #{$resource->id} — file missing on disk.");
                 continue;
             }
 
-            $absolutePath = Storage::disk('local')->path($resource->file_path);
-            $changes = [];
+            // ZipArchive needs a real local filesystem path; on a remote
+            // disk (e.g. R2) that means downloading to a temp file first.
+            $tempPath = tempnam(sys_get_temp_dir(), 'jd-backfill-');
+            file_put_contents($tempPath, $disk->get($resource->file_path));
 
-            if ($binary = OfficeDocumentInspector::extractThumbnail($absolutePath)) {
-                if ($thumbnailPath = ThumbnailStorage::storeFromBinary($binary)) {
-                    $changes['thumbnail_path'] = $thumbnailPath;
+            try {
+                $changes = [];
+
+                if ($binary = OfficeDocumentInspector::extractThumbnail($tempPath)) {
+                    if ($thumbnailPath = ThumbnailStorage::storeFromBinary($binary)) {
+                        $changes['thumbnail_path'] = $thumbnailPath;
+                    }
                 }
-            }
 
-            if (! $resource->pages) {
-                if ($pages = OfficeDocumentInspector::extractPageCount($absolutePath, $resource->format)) {
-                    $changes['pages'] = $pages;
+                if (! $resource->pages) {
+                    if ($pages = OfficeDocumentInspector::extractPageCount($tempPath, $resource->format)) {
+                        $changes['pages'] = $pages;
+                    }
                 }
-            }
 
-            if ($changes !== []) {
-                $resource->update($changes);
-                $updated++;
-                $this->line("#{$resource->id} {$resource->title} — updated (".implode(', ', array_keys($changes)).')');
+                if ($changes !== []) {
+                    $resource->update($changes);
+                    $updated++;
+                    $this->line("#{$resource->id} {$resource->title} — updated (".implode(', ', array_keys($changes)).')');
+                }
+            } finally {
+                @unlink($tempPath);
             }
         }
 
