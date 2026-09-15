@@ -19,6 +19,36 @@
                 </div>
             </div>
 
+            {{-- Uploads over time --}}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-sm rounded-xl p-4">
+                    <h3 class="font-display font-semibold text-pine dark:text-mint mb-4">{{ __('Uploads, Daily (30d)') }}</h3>
+                    <x-admin.line-chart
+                        :labels="$dailyUploads->pluck('label')->all()"
+                        :values="$dailyUploads->pluck('value')->all()"
+                        :height="140"
+                    />
+                </div>
+                <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-sm rounded-xl p-4">
+                    <h3 class="font-display font-semibold text-pine dark:text-mint mb-4">{{ __('Uploads, Monthly (12mo)') }}</h3>
+                    <x-admin.line-chart
+                        :labels="$monthlyUploads->pluck('label')->all()"
+                        :values="$monthlyUploads->pluck('value')->all()"
+                        :height="140"
+                        color="jd-success"
+                    />
+                </div>
+                <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-sm rounded-xl p-4">
+                    <h3 class="font-display font-semibold text-pine dark:text-mint mb-4">{{ __('Uploads, Yearly') }}</h3>
+                    <x-admin.line-chart
+                        :labels="$yearlyUploads->pluck('label')->all()"
+                        :values="$yearlyUploads->pluck('value')->all()"
+                        :height="140"
+                        color="jd-warning"
+                    />
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {{-- By file format --}}
                 <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-sm rounded-xl p-4">

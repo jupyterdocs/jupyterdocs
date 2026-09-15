@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Download;
 use App\Models\Resource;
 use App\Models\ResourceType;
+use App\Support\TimeSeries;
 use Illuminate\Support\Facades\DB;
 
 class ContentController extends Controller
@@ -65,8 +66,29 @@ class ContentController extends Controller
             'total_storage_bytes' => (int) Resource::sum('file_size'),
         ];
 
+        $dailyUploads = TimeSeries::fillDays(
+            Resource::select(DB::raw("TO_CHAR(created_at, 'YYYY-MM-DD') as day"), DB::raw('count(*) as total'))
+                ->where('created_at', '>=', now()->subDays(29)->startOfDay())
+                ->groupBy('day')
+                ->pluck('total', 'day')
+        );
+
+        $monthlyUploads = TimeSeries::fillMonths(
+            Resource::select(DB::raw("TO_CHAR(created_at, 'YYYY-MM') as month"), DB::raw('count(*) as total'))
+                ->where('created_at', '>=', now()->subMonths(11)->startOfMonth())
+                ->groupBy('month')
+                ->pluck('total', 'month')
+        );
+
+        $yearlyUploads = TimeSeries::fillYears(
+            Resource::select(DB::raw('EXTRACT(YEAR FROM created_at) as year'), DB::raw('count(*) as total'))
+                ->groupBy('year')
+                ->get()
+        );
+
         return view('admin.content.index', compact(
-            'byFormat', 'byType', 'byStatus', 'byConversion', 'needsConversion', 'topDownloaded', 'recentUploads', 'totals'
+            'byFormat', 'byType', 'byStatus', 'byConversion', 'needsConversion', 'topDownloaded', 'recentUploads',
+            'totals', 'dailyUploads', 'monthlyUploads', 'yearlyUploads'
         ));
     }
 }

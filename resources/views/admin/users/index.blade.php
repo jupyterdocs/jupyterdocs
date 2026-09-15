@@ -31,20 +31,10 @@
             {{-- Registrations per year --}}
             <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-sm rounded-xl p-4">
                 <h3 class="font-display font-semibold text-pine dark:text-mint mb-4">{{ __('Users Gained Per Year') }}</h3>
-                @if ($registrationsByYear->isEmpty())
-                    <p class="text-sm text-jd-ink-muted dark:text-sage">{{ __('No registrations yet.') }}</p>
-                @else
-                    @php $max = max(1, $registrationsByYear->max('total')); @endphp
-                    <div class="flex items-end gap-6 h-40">
-                        @foreach ($registrationsByYear as $row)
-                            <div class="flex flex-col items-center justify-end h-full gap-2">
-                                <span class="text-xs font-display font-semibold text-pine dark:text-mint">{{ $row['total'] }}</span>
-                                <div class="w-10 bg-moss dark:bg-sage rounded-t-md" style="height: {{ max(4, round($row['total'] / $max * 100)) }}%"></div>
-                                <span class="text-xs font-mono text-jd-ink-muted dark:text-sage">{{ $row['year'] }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
+                <x-admin.line-chart
+                    :labels="$registrationsByYear->pluck('label')->all()"
+                    :values="$registrationsByYear->pluck('value')->all()"
+                />
             </div>
 
             <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-sm rounded-xl overflow-x-auto">

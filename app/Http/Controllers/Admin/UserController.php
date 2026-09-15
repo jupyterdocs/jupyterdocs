@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserActivityLog;
+use App\Support\TimeSeries;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -21,14 +22,11 @@ class UserController extends Controller
         $onlineCount = User::where('last_seen_at', '>=', $onlineThreshold)->count();
         $adminCount = User::where('role', 'admin')->count();
 
-        $registrationsByYear = User::select(
-                DB::raw('EXTRACT(YEAR FROM created_at) as year'),
-                DB::raw('count(*) as total')
-            )
-            ->groupBy('year')
-            ->orderBy('year')
-            ->get()
-            ->map(fn ($row) => ['year' => (int) $row->year, 'total' => (int) $row->total]);
+        $registrationsByYear = TimeSeries::fillYears(
+            User::select(DB::raw('EXTRACT(YEAR FROM created_at) as year'), DB::raw('count(*) as total'))
+                ->groupBy('year')
+                ->get()
+        );
 
         $windowDays = 30;
         $windowStart = now()->subDays($windowDays - 1)->toDateString();
