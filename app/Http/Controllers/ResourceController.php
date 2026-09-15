@@ -6,6 +6,7 @@ use App\Http\Requests\StoreResourceRequest;
 use App\Models\Course;
 use App\Models\Resource;
 use App\Models\ResourceType;
+use App\Models\ResourceVote;
 use App\Models\Tag;
 use App\Models\University;
 use App\Support\OfficeDocumentInspector;
@@ -28,8 +29,13 @@ class ResourceController extends Controller
 
         $resourceTypes = ResourceType::orderBy('name')->get();
 
+        $savedIds = $request->user()
+            ? $request->user()->savedResources()->whereIn('resources.id', $resources->pluck('id'))->pluck('resources.id')->all()
+            : [];
+
         return view('resources.index', [
             'resources' => $resources,
+            'savedIds' => $savedIds,
             'resourceTypes' => $resourceTypes,
             'q' => $request->query('q'),
             'selectedType' => $request->query('type'),
@@ -43,7 +49,14 @@ class ResourceController extends Controller
             404
         );
 
-        $resource->load(['uploader', 'resourceType', 'course', 'university', 'tags']);
+        $resource->load(['uploader', 'resourceType', 'course', 'university', 'tags'])
+            ->loadCount([
+                'votes as likes_count' => fn ($q) => $q->where('value', ResourceVote::LIKE),
+                'votes as dislikes_count' => fn ($q) => $q->where('value', ResourceVote::DISLIKE),
+            ]);
+
+        $user = auth()->user();
+        $userVote = $user ? ResourceVote::where('user_id', $user->id)->where('resource_id', $resource->id)->value('value') : null;
 
         $related = Resource::approved()
             ->where('id', '!=', $resource->id)
@@ -64,6 +77,15 @@ class ResourceController extends Controller
             'canDownload' => $resource->isDownloadableBy(auth()->user()),
             'canPreview' => $resource->isPreviewableBy(auth()->user()),
             'related' => $related,
+            'canInteract' => $resource->isInteractableBy($user),
+            'isSaved' => $user ? $user->savedResources()->whereKey($resource->id)->exists() : false,
+            'userVote' => match ($userVote) {
+                ResourceVote::LIKE => 'like',
+                ResourceVote::DISLIKE => 'dislike',
+                default => null,
+            },
+            'hasReported' => $user ? $resource->reports()->where('user_id', $user->id)->where('status', 'open')->exists() : false,
+            'votes' => $resource->voteSummary(),
         ]);
     }
 

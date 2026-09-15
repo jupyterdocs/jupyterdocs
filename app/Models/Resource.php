@@ -79,6 +79,59 @@ class Resource extends Model
         return $this->hasMany(Download::class);
     }
 
+    public function votes(): HasMany
+    {
+        return $this->hasMany(ResourceVote::class);
+    }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(ResourceReport::class);
+    }
+
+    public function savedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'saved_resources')->withTimestamps();
+    }
+
+    /**
+     * Eager-load like/dislike tallies as likes_count / dislikes_count.
+     */
+    public function scopeWithVoteCounts(Builder $query): Builder
+    {
+        return $query->withCount([
+            'votes as likes_count' => fn (Builder $q) => $q->where('value', ResourceVote::LIKE),
+            'votes as dislikes_count' => fn (Builder $q) => $q->where('value', ResourceVote::DISLIKE),
+        ]);
+    }
+
+    /**
+     * Like/dislike share as whole percentages that always add up to 100,
+     * or nulls when nobody has voted yet.
+     *
+     * @return array{likes: int, dislikes: int, like_percent: ?int, dislike_percent: ?int}
+     */
+    public function voteSummary(): array
+    {
+        $likes = (int) ($this->likes_count ?? $this->votes()->where('value', ResourceVote::LIKE)->count());
+        $dislikes = (int) ($this->dislikes_count ?? $this->votes()->where('value', ResourceVote::DISLIKE)->count());
+        $total = $likes + $dislikes;
+
+        $likePercent = $total ? (int) round($likes / $total * 100) : null;
+
+        return [
+            'likes' => $likes,
+            'dislikes' => $dislikes,
+            'like_percent' => $likePercent,
+            'dislike_percent' => $total ? 100 - $likePercent : null,
+        ];
+    }
+
+    public function isInteractableBy(?User $user): bool
+    {
+        return $user !== null && $this->status === 'approved';
+    }
+
     public function scopeApproved(Builder $query): Builder
     {
         return $query->where('status', 'approved');
