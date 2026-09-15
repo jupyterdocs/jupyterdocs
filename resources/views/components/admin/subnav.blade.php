@@ -4,6 +4,7 @@
         ['route' => 'admin.users.index', 'pattern' => 'admin.users.*', 'label' => __('Users')],
         ['route' => 'admin.content.index', 'pattern' => 'admin.content.*', 'label' => __('Library Analytics')],
         ['route' => 'admin.moderation.index', 'pattern' => 'admin.moderation.*', 'label' => __('Moderation')],
+        ['route' => 'admin.reports.index', 'pattern' => 'admin.reports.*', 'label' => __('Reports')],
     ];
 @endphp
 

@@ -110,6 +110,58 @@
                         </button>
                         <p id="share-status" class="text-xs text-center text-jd-ink-muted dark:text-sage h-4"></p>
                     </div>
+
+                    @if ($resource->status === 'approved')
+                        @php
+                            $tile = 'group w-full h-full flex flex-col items-center justify-center gap-1.5 rounded-lg bg-jd-surface-2 dark:bg-cypress border border-transparent px-2 py-3 text-xs font-display font-medium text-pine dark:text-mint hover:border-pine/20 dark:hover:border-mint/20 aria-pressed:bg-moss/15 aria-pressed:border-moss dark:aria-pressed:bg-sage/20 dark:aria-pressed:border-sage transition';
+                        @endphp
+                        <div class="mt-4 grid grid-cols-2 gap-2" data-vote-group>
+                            @auth
+                                {{-- Save --}}
+                                <form method="POST" action="{{ route('resources.save', $resource) }}" data-save-form data-resource="{{ $resource->id }}">
+                                    @csrf
+                                    <button type="submit" aria-pressed="{{ $isSaved ? 'true' : 'false' }}" title="{{ $isSaved ? __('Remove from saved') : __('Save for later') }}" class="{{ $tile }}">
+                                        <svg class="w-5 h-5 fill-none group-aria-pressed:fill-current" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 3.75h12a.75.75 0 0 1 .75.75v16.19a.375.375 0 0 1-.6.3L12 16.5l-6.15 4.49a.375.375 0 0 1-.6-.3V4.5A.75.75 0 0 1 6 3.75z"/></svg>
+                                        <span data-save-label>{{ $isSaved ? __('Saved') : __('Save') }}</span>
+                                    </button>
+                                </form>
+
+                                {{-- Like --}}
+                                <form method="POST" action="{{ route('resources.vote', $resource) }}" data-vote-form="like">
+                                    @csrf
+                                    <input type="hidden" name="vote" value="like">
+                                    <button type="submit" aria-pressed="{{ $userVote === 'like' ? 'true' : 'false' }}" title="{{ $votes['likes'] }} {{ __('like(s)') }}" class="{{ $tile }}">
+                                        <svg class="w-5 h-5 fill-none group-aria-pressed:fill-current" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7 10v11M7 10H4.5A1.5 1.5 0 0 0 3 11.5v8A1.5 1.5 0 0 0 4.5 21H17.3a2 2 0 0 0 2-1.7l1.2-7A2 2 0 0 0 18.5 10H14V5.5A2.5 2.5 0 0 0 11.5 3L7 10z"/></svg>
+                                        <span data-vote-label>{{ $votes['like_percent'] === null ? __('Like') : $votes['like_percent'].'%' }}</span>
+                                    </button>
+                                </form>
+
+                                {{-- Dislike --}}
+                                <form method="POST" action="{{ route('resources.vote', $resource) }}" data-vote-form="dislike">
+                                    @csrf
+                                    <input type="hidden" name="vote" value="dislike">
+                                    <button type="submit" aria-pressed="{{ $userVote === 'dislike' ? 'true' : 'false' }}" title="{{ $votes['dislikes'] }} {{ __('dislike(s)') }}" class="{{ $tile }}">
+                                        <svg class="w-5 h-5 fill-none group-aria-pressed:fill-current" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17 14V3m0 11h2.5a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 19.5 3H6.7a2 2 0 0 0-2 1.7l-1.2 7A2 2 0 0 0 5.5 14H10v4.5a2.5 2.5 0 0 0 2.5 2.5L17 14z"/></svg>
+                                        <span data-vote-label>{{ $votes['dislike_percent'] === null ? __('Dislike') : $votes['dislike_percent'].'%' }}</span>
+                                    </button>
+                                </form>
+
+                                {{-- Report --}}
+                                <div>
+                                    <button type="button" x-data x-on:click="$dispatch('open-modal', 'report-resource')" class="{{ $tile }}">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 21V4m0 0h11l-1.5 4L15 12H4"/></svg>
+                                        <span data-report-label>{{ $hasReported ? __('Reported') : __('Report') }}</span>
+                                    </button>
+                                </div>
+                            @else
+                                @foreach ([__('Save'), $votes['like_percent'] === null ? __('Like') : $votes['like_percent'].'%', $votes['dislike_percent'] === null ? __('Dislike') : $votes['dislike_percent'].'%', __('Report')] as $label)
+                                    <a href="{{ route('login') }}" class="{{ $tile }}" title="{{ __('Log in to use this') }}">
+                                        <span>{{ $label }}</span>
+                                    </a>
+                                @endforeach
+                            @endauth
+                        </div>
+                    @endif
                 </div>
             </aside>
 
@@ -146,6 +198,44 @@
             </aside>
         </div>
     </div>
+
+    @auth
+        @if ($resource->status === 'approved')
+            <x-modal name="report-resource" :show="$errors->has('reason') || $errors->has('details')" maxWidth="lg" focusable>
+                <form method="POST" action="{{ route('resources.report', $resource) }}" data-report-form class="p-6 space-y-4">
+                    @csrf
+                    <div>
+                        <h2 class="text-lg font-display font-bold text-pine dark:text-mint">{{ __('Report this document') }}</h2>
+                        <p class="mt-1 text-sm text-jd-ink-muted dark:text-sage">{{ __('Tell us what is wrong. An admin will review it.') }}</p>
+                    </div>
+
+                    <fieldset class="space-y-2">
+                        <legend class="sr-only">{{ __('Reason') }}</legend>
+                        @foreach (\App\Models\ResourceReport::REASONS as $key => $label)
+                            <label class="flex items-center gap-3 rounded-lg border border-pine/10 dark:border-mint/10 px-3 py-2 text-sm text-pine dark:text-mint cursor-pointer hover:bg-jd-surface-2 dark:hover:bg-cypress">
+                                <input type="radio" name="reason" value="{{ $key }}" required @checked(old('reason') === $key)
+                                       class="text-moss dark:text-sage focus:ring-moss dark:focus:ring-sage">
+                                {{ __($label) }}
+                            </label>
+                        @endforeach
+                    </fieldset>
+
+                    <div>
+                        <label for="report-details" class="block text-sm font-display font-medium text-pine dark:text-mint">{{ __('Details') }} <span class="text-jd-ink-muted dark:text-sage font-normal">{{ __('(required for "Other")') }}</span></label>
+                        <textarea id="report-details" name="details" rows="3" maxlength="1000"
+                                  class="mt-1 block w-full rounded-lg border-pine/15 dark:border-mint/15 bg-white dark:bg-cypress text-pine dark:text-mint text-sm focus:border-moss dark:focus:border-sage focus:ring-moss dark:focus:ring-sage">{{ old('details') }}</textarea>
+                    </div>
+
+                    <p data-report-error class="text-sm text-jd-danger min-h-[1.25rem]">{{ $errors->first('reason') ?: $errors->first('details') }}</p>
+
+                    <div class="flex justify-end gap-2">
+                        <button type="button" x-on:click="$dispatch('close')" class="px-4 py-2 rounded-lg border border-pine/20 dark:border-mint/20 text-sm font-display font-semibold text-jd-ink-muted dark:text-sage hover:bg-jd-surface-2 dark:hover:bg-cypress">{{ __('Cancel') }}</button>
+                        <button type="submit" class="px-4 py-2 rounded-lg bg-jd-danger text-white text-sm font-display font-semibold hover:opacity-90">{{ __('Submit report') }}</button>
+                    </div>
+                </form>
+            </x-modal>
+        @endif
+    @endauth
 
     <script>
         document.getElementById('share-button')?.addEventListener('click', async function () {

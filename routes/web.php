@@ -3,10 +3,12 @@
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ModerationController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\ResourceInteractionController;
 use Illuminate\Support\Facades\Route;
 
 // Marketing landing page for guests; signed-in users go straight to their dashboard.
@@ -44,6 +46,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/resources/{resource}/download', [DownloadController::class, 'store'])->name('resources.download');
     Route::get('/resources/{resource}/preview', [ResourceController::class, 'preview'])->name('resources.preview');
 
+    Route::get('/saved', [ResourceInteractionController::class, 'saved'])->name('resources.saved');
+    Route::post('/resources/{resource}/save', [ResourceInteractionController::class, 'toggleSave'])->name('resources.save');
+    Route::post('/resources/{resource}/vote', [ResourceInteractionController::class, 'vote'])->name('resources.vote');
+    Route::post('/resources/{resource}/report', [ResourceInteractionController::class, 'report'])->name('resources.report');
+
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -56,6 +63,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/moderation', [ModerationController::class, 'index'])->name('moderation.index');
         Route::post('/moderation/{resource}/approve', [ModerationController::class, 'approve'])->name('moderation.approve');
         Route::post('/moderation/{resource}/reject', [ModerationController::class, 'reject'])->name('moderation.reject');
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::patch('/reports/{report}', [ReportController::class, 'update'])->name('reports.update');
     });
 });
 

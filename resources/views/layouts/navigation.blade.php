@@ -23,9 +23,15 @@
                         <x-nav-link :href="route('resources.mine')" :active="request()->routeIs('resources.mine')">
                             {{ __('My Uploads') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('resources.saved')" :active="request()->routeIs('resources.saved')">
+                            {{ __('Saved') }}
+                        </x-nav-link>
                         @if (Auth::user()->isAdmin())
                             <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
                                 {{ __('Admin') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('admin.reports.index')" :active="request()->routeIs('admin.reports.*')">
+                                {{ __('Reports') }}
                             </x-nav-link>
                         @endif
                     @endauth
@@ -113,9 +119,15 @@
                 <x-responsive-nav-link :href="route('resources.mine')" :active="request()->routeIs('resources.mine')">
                     {{ __('My Uploads') }}
                 </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('resources.saved')" :active="request()->routeIs('resources.saved')">
+                    {{ __('Saved') }}
+                </x-responsive-nav-link>
                 @if (Auth::user()->isAdmin())
                     <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
                         {{ __('Admin') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.reports.index')" :active="request()->routeIs('admin.reports.*')">
+                        {{ __('Reports') }}
                     </x-responsive-nav-link>
                 @endif
             @endauth
