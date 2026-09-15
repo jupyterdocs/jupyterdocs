@@ -24,6 +24,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'deactivated_at',
     ];
 
     /**
@@ -47,6 +48,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'last_seen_at' => 'datetime',
+            'deactivated_at' => 'datetime',
         ];
     }
 
@@ -88,6 +90,11 @@ class User extends Authenticatable
     public function isOnline(): bool
     {
         return $this->last_seen_at && $this->last_seen_at->gte(now()->subMinutes(5));
+    }
+
+    public function isDeactivated(): bool
+    {
+        return $this->deactivated_at !== null;
     }
 
     public function totalActiveSeconds(): int

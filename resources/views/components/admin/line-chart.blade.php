@@ -35,7 +35,23 @@
         default => 'bg-moss dark:bg-sage',
     };
 
-    $labelStep = $n > 10 ? (int) ceil($n / 8) : 1;
+    // Pick a handful of evenly-spaced label indices, always keeping the last
+    // one but dropping its neighbor if they'd be too close and overlap.
+    $maxLabels = min($n, 6);
+    $labelIndices = [];
+    if ($maxLabels > 0) {
+        $step = $n > 1 ? max(1, (int) floor(($n - 1) / max(1, $maxLabels - 1))) : 1;
+        for ($i = 0; $i < $n; $i += $step) {
+            $labelIndices[] = $i;
+        }
+        $lastIndex = $n - 1;
+        if (end($labelIndices) !== $lastIndex) {
+            if (count($labelIndices) > 1 && ($lastIndex - end($labelIndices)) < $step) {
+                array_pop($labelIndices);
+            }
+            $labelIndices[] = $lastIndex;
+        }
+    }
 @endphp
 
 <div {{ $attributes }}>
@@ -59,7 +75,7 @@
         </div>
         <div class="relative h-4 mt-1">
             @foreach ($points as $i => $p)
-                @if ($labelStep === 1 || $i % $labelStep === 0 || $i === $n - 1)
+                @if (in_array($i, $labelIndices, true))
                     <span class="absolute -translate-x-1/2 text-[10px] font-mono text-jd-ink-muted dark:text-sage whitespace-nowrap" style="left: {{ $p['x'] }}%">{{ $p['label'] }}</span>
                 @endif
             @endforeach

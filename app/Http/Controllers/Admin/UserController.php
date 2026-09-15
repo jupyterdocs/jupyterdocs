@@ -8,6 +8,7 @@ use App\Models\UserActivityLog;
 use App\Support\TimeSeries;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -75,5 +76,31 @@ class UserController extends Controller
         $user->update(['role' => $validated['role']]);
 
         return back()->with('status', "{$user->name}'s role updated to {$validated['role']}.");
+    }
+
+    public function toggleActive(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->with('status', "You can't deactivate your own account.");
+        }
+
+        if ($user->isDeactivated()) {
+            $user->update(['deactivated_at' => null]);
+
+            return back()->with('status', "{$user->name}'s account has been reactivated.");
+        }
+
+        $user->update(['deactivated_at' => now()]);
+
+        return back()->with('status', "{$user->name}'s account has been deactivated. They'll be signed out and can't log back in until reactivated.");
+    }
+
+    public function resetPassword(User $user)
+    {
+        $newPassword = Str::password(12);
+
+        $user->update(['password' => $newPassword]);
+
+        return back()->with('status', "Password reset for {$user->name}. New temporary password: {$newPassword} — share it with them securely, they should change it after logging in.");
     }
 }

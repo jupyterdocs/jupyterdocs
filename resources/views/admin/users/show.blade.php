@@ -24,7 +24,9 @@
                     <div class="flex items-center gap-3">
                         <h3 class="font-display font-bold text-xl text-pine dark:text-mint">{{ $user->name }}</h3>
                         <span class="text-xs font-display font-semibold px-2.5 py-1 rounded-full bg-jd-surface-2 dark:bg-cypress text-jd-ink-muted dark:text-sage">{{ ucfirst($user->role) }}</span>
-                        @if ($user->isOnline())
+                        @if ($user->isDeactivated())
+                            <span class="text-xs font-display font-semibold px-2.5 py-1 rounded-full bg-jd-danger/10 text-jd-danger">{{ __('Deactivated') }}</span>
+                        @elseif ($user->isOnline())
                             <span class="inline-flex items-center gap-1.5 text-xs font-display font-semibold px-2.5 py-1 rounded-full bg-jd-success/10 text-jd-success">
                                 <span class="w-1.5 h-1.5 rounded-full bg-jd-success"></span>
                                 {{ __('Online') }}
@@ -48,14 +50,33 @@
                 </div>
 
                 @if ($user->id !== auth()->id())
-                    <form method="POST" action="{{ route('admin.users.role', $user) }}" class="flex items-center gap-2">
-                        @csrf
-                        @method('patch')
-                        <select name="role" onchange="this.form.submit()" class="text-sm rounded-lg border-pine/15 dark:border-mint/15 bg-white dark:bg-cypress text-pine dark:text-mint shadow-sm focus:border-moss focus:ring-moss font-display">
-                            <option value="student" @selected($user->role === 'student')>{{ __('Student') }}</option>
-                            <option value="admin" @selected($user->role === 'admin')>{{ __('Admin') }}</option>
-                        </select>
-                    </form>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <form method="POST" action="{{ route('admin.users.role', $user) }}">
+                            @csrf
+                            @method('patch')
+                            <select name="role" onchange="this.form.submit()" class="text-sm rounded-lg border-pine/15 dark:border-mint/15 bg-white dark:bg-cypress text-pine dark:text-mint shadow-sm focus:border-moss focus:ring-moss font-display">
+                                <option value="student" @selected($user->role === 'student')>{{ __('Student') }}</option>
+                                <option value="admin" @selected($user->role === 'admin')>{{ __('Admin') }}</option>
+                            </select>
+                        </form>
+
+                        <form method="POST" action="{{ route('admin.users.reset-password', $user) }}" onsubmit="return confirm('{{ __('Generate a new temporary password for this user? Their current password will stop working immediately.') }}')">
+                            @csrf
+                            <button type="submit" class="px-3 py-2 rounded-lg text-sm font-display font-semibold border border-pine/20 dark:border-mint/20 text-jd-ink-muted dark:text-sage hover:bg-jd-surface-2 dark:hover:bg-cypress whitespace-nowrap">
+                                {{ __('Reset Password') }}
+                            </button>
+                        </form>
+
+                        <form method="POST" action="{{ route('admin.users.toggle-active', $user) }}" onsubmit="return confirm('{{ $user->isDeactivated() ? __('Reactivate this account?') : __('Deactivate this account? They will be signed out immediately and cannot log back in until reactivated.') }}')">
+                            @csrf
+                            @method('patch')
+                            <button type="submit" @class([
+                                'px-3 py-2 rounded-lg text-sm font-display font-semibold border whitespace-nowrap',
+                                'border-jd-success/30 text-jd-success hover:bg-jd-success/10' => $user->isDeactivated(),
+                                'border-jd-danger/30 text-jd-danger hover:bg-jd-danger/10' => ! $user->isDeactivated(),
+                            ])>{{ $user->isDeactivated() ? __('Reactivate Account') : __('Deactivate Account') }}</button>
+                        </form>
+                    </div>
                 @endif
             </div>
 

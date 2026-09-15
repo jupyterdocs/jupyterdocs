@@ -6,14 +6,13 @@ use App\Models\Resource;
 use App\Models\ResourceReport;
 use App\Models\ResourceType;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
-// Uses transactions rather than RefreshDatabase so running it never wipes the dev database.
 class ResourceInteractionTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     private function makeResource(string $status = 'approved'): Resource
     {

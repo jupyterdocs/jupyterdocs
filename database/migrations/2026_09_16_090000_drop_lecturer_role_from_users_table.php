@@ -9,13 +9,19 @@ return new class extends Migration
     {
         DB::table('users')->where('role', 'lecturer')->update(['role' => 'student']);
 
-        DB::statement('ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check');
-        DB::statement("ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('student', 'admin'))");
+        // SQLite (used for the test suite) enforces its enum check inline at
+        // CREATE TABLE time and doesn't support named ALTER TABLE constraints.
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check');
+            DB::statement("ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('student', 'admin'))");
+        }
     }
 
     public function down(): void
     {
-        DB::statement('ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check');
-        DB::statement("ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('student', 'lecturer', 'admin'))");
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check');
+            DB::statement("ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('student', 'lecturer', 'admin'))");
+        }
     }
 };
