@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreResourceRequest;
+use App\Jobs\ConvertResourceToPdf;
 use App\Models\Course;
 use App\Models\Resource;
 use App\Models\ResourceType;
@@ -106,14 +107,23 @@ class ResourceController extends Controller
         return view('resources.preview', ['resource' => $resource]);
     }
 
+    /**
+     * Serves whichever file actually has a PDF preview: the original file
+     * for native PDFs, or the CloudConvert/Gotenberg-converted copy for
+     * everything else. resources.read always points here so pdf.js never
+     * needs to know which one it's getting.
+     */
     private function streamInline(Resource $resource)
     {
-        abort_unless(Storage::disk('local')->exists($resource->file_path), 404);
+        $path = $resource->previewSourcePath();
+        $disk = Storage::disk(config('filesystems.resource_disk'));
 
-        return Storage::disk('local')->response(
-            $resource->file_path,
-            $resource->title.'.'.$resource->format,
-            ['Content-Disposition' => 'inline; filename="'.$resource->title.'.'.$resource->format.'"']
+        abort_unless($path && $disk->exists($path), 404);
+
+        return $disk->response(
+            $path,
+            $resource->title.'.pdf',
+            ['Content-Disposition' => 'inline; filename="'.$resource->title.'.pdf"']
         );
     }
 
@@ -129,7 +139,6 @@ class ResourceController extends Controller
         $validated = $request->validated();
 
         $file = $request->file('file');
-        $path = $file->store('resources', 'local');
         $format = $file->getClientOriginalExtension();
 
         $thumbnailPath = ThumbnailStorage::storeFromDataUrl($validated['thumbnail_data'] ?? null);
@@ -139,17 +148,22 @@ class ResourceController extends Controller
         // PowerPoint/Word/Excel files are zip archives that often embed a
         // ready-made thumbnail and, for pptx/docx, their true page count —
         // pull those out server-side when the client didn't already send one.
+        // This runs against the upload's own local temp path (always a real
+        // filesystem path, regardless of which disk the file ends up on)
+        // BEFORE storing, so it works whether resource_disk is local or R2.
         if (in_array($format, ['pptx', 'docx', 'xlsx'], true)) {
-            $absolutePath = Storage::disk('local')->path($path);
+            $tempPath = $file->getRealPath();
 
-            if (! $thumbnailPath && $binary = OfficeDocumentInspector::extractThumbnail($absolutePath)) {
+            if (! $thumbnailPath && $binary = OfficeDocumentInspector::extractThumbnail($tempPath)) {
                 $thumbnailPath = ThumbnailStorage::storeFromBinary($binary);
             }
 
             if (! $pages) {
-                $pages = OfficeDocumentInspector::extractPageCount($absolutePath, $format);
+                $pages = OfficeDocumentInspector::extractPageCount($tempPath, $format);
             }
         }
+
+        $path = $file->store('resources', config('filesystems.resource_disk'));
 
         $resource = Resource::create([
             'uploader_id' => auth()->id(),
@@ -166,6 +180,15 @@ class ResourceController extends Controller
             'format' => $format,
             'pages' => $pages,
         ]);
+
+        // Full page-by-page preview (not just a thumbnail) needs real PDF
+        // conversion — queued so it never blocks the upload response.
+        if (in_array($format, config('conversion.formats'), true)) {
+            $resource->conversion_status = 'pending';
+            $resource->save();
+
+            ConvertResourceToPdf::dispatch($resource->id);
+        }
 
         if (! empty($validated['tags'])) {
             $tagIds = collect(explode(',', $validated['tags']))

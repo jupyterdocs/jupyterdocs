@@ -1,7 +1,7 @@
 @props(['resource'])
 
 <div {{ $attributes->merge(['class' => 'bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 rounded-xl shadow-sm overflow-hidden']) }}>
-    @if ($resource->format === 'pdf')
+    @if ($resource->hasPdfPreview())
         <div class="flex items-center justify-between gap-2 px-4 py-2 border-b border-pine/10 dark:border-mint/10 bg-jd-surface-2 dark:bg-cypress text-sm font-display">
             <div class="flex items-center gap-2">
                 <button type="button" id="prev-page" class="px-2 py-1 rounded hover:bg-white dark:hover:bg-abyss text-pine dark:text-mint disabled:opacity-30" disabled>&larr;</button>
@@ -91,6 +91,19 @@
                 zoomOutBtn.addEventListener('click', () => { zoom = Math.max(zoom - 0.2, 0.4); renderPage(currentPage); });
             })();
         </script>
+    @elseif (in_array($resource->conversion_status, ['pending', 'processing']))
+        <div class="p-16 text-center">
+            <div class="mx-auto w-20 h-24 bg-jd-surface-2 dark:bg-cypress rounded border border-pine/10 dark:border-mint/10 flex items-center justify-center mb-4 overflow-hidden">
+                @if ($resource->thumbnailUrl())
+                    <img src="{{ $resource->thumbnailUrl() }}" class="w-full h-full object-cover object-top" alt="">
+                @else
+                    <svg class="w-10 h-10 text-sage/60 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                @endif
+            </div>
+            <p class="text-sm text-jd-ink-muted dark:text-sage font-serif italic">{{ __("We're preparing an online preview for this document — check back shortly.") }}</p>
+        </div>
     @else
         <div class="p-16 text-center">
             <div class="mx-auto w-20 h-24 bg-jd-surface-2 dark:bg-cypress rounded border border-pine/10 dark:border-mint/10 flex items-center justify-center mb-4 overflow-hidden">
@@ -102,7 +115,7 @@
                     </svg>
                 @endif
             </div>
-            <p class="text-sm text-jd-ink-muted dark:text-sage font-serif italic">{{ __('Online preview is only available for PDF files right now.') }}</p>
+            <p class="text-sm text-jd-ink-muted dark:text-sage font-serif italic">{{ __('Online preview isn\'t available for this document.') }}</p>
             <p class="text-sm text-jd-ink-muted dark:text-sage font-serif italic">{{ __('This is a :format file — download it to view the full content.', ['format' => strtoupper($resource->format)]) }}</p>
         </div>
     @endif

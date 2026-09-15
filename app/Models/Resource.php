@@ -159,8 +159,22 @@ class Resource extends Model
     public function thumbnailUrl(): ?string
     {
         return $this->thumbnail_path
-            ? Storage::disk('public')->url($this->thumbnail_path)
+            ? Storage::disk(config('filesystems.thumbnail_disk'))->url($this->thumbnail_path)
             : null;
+    }
+
+    public function hasPdfPreview(): bool
+    {
+        return $this->format === 'pdf' || $this->conversion_status === 'done';
+    }
+
+    public function previewSourcePath(): ?string
+    {
+        if ($this->format === 'pdf') {
+            return $this->file_path;
+        }
+
+        return $this->converted_pdf_path;
     }
 
     public function isDownloadableBy(?User $user): bool

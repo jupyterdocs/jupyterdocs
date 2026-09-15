@@ -28,6 +28,11 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
+    'cloudconvert' => [
+        'api_key' => env('CLOUDCONVERT_API_KEY'),
+        'sandbox' => env('CLOUDCONVERT_SANDBOX', false),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

@@ -27,8 +27,8 @@
                             {{ __('Saved') }}
                         </x-nav-link>
                         @if (Auth::user()->isAdmin())
-                            <x-nav-link :href="route('admin.moderation.index')" :active="request()->routeIs('admin.moderation.*')">
-                                {{ __('Moderation') }}
+                            <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
+                                {{ __('Admin') }}
                             </x-nav-link>
                             <x-nav-link :href="route('admin.reports.index')" :active="request()->routeIs('admin.reports.*')">
                                 {{ __('Reports') }}
@@ -123,8 +123,8 @@
                     {{ __('Saved') }}
                 </x-responsive-nav-link>
                 @if (Auth::user()->isAdmin())
-                    <x-responsive-nav-link :href="route('admin.moderation.index')" :active="request()->routeIs('admin.moderation.*')">
-                        {{ __('Moderation') }}
+                    <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
+                        {{ __('Admin') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('admin.reports.index')" :active="request()->routeIs('admin.reports.*')">
                         {{ __('Reports') }}
