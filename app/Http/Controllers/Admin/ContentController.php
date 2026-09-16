@@ -67,21 +67,21 @@ class ContentController extends Controller
         ];
 
         $dailyUploads = TimeSeries::fillDays(
-            Resource::select(DB::raw("TO_CHAR(created_at, 'YYYY-MM-DD') as day"), DB::raw('count(*) as total'))
+            Resource::select(DB::raw(TimeSeries::dayExpression().' as day'), DB::raw('count(*) as total'))
                 ->where('created_at', '>=', now()->subDays(29)->startOfDay())
                 ->groupBy('day')
                 ->pluck('total', 'day')
         );
 
         $monthlyUploads = TimeSeries::fillMonths(
-            Resource::select(DB::raw("TO_CHAR(created_at, 'YYYY-MM') as month"), DB::raw('count(*) as total'))
+            Resource::select(DB::raw(TimeSeries::monthExpression().' as month'), DB::raw('count(*) as total'))
                 ->where('created_at', '>=', now()->subMonths(11)->startOfMonth())
                 ->groupBy('month')
                 ->pluck('total', 'month')
         );
 
         $yearlyUploads = TimeSeries::fillYears(
-            Resource::select(DB::raw('EXTRACT(YEAR FROM created_at) as year'), DB::raw('count(*) as total'))
+            Resource::select(DB::raw(TimeSeries::yearExpression().' as year'), DB::raw('count(*) as total'))
                 ->groupBy('year')
                 ->get()
         );

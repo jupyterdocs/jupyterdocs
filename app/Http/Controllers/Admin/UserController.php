@@ -24,7 +24,7 @@ class UserController extends Controller
         $adminCount = User::where('role', 'admin')->count();
 
         $registrationsByYear = TimeSeries::fillYears(
-            User::select(DB::raw('EXTRACT(YEAR FROM created_at) as year'), DB::raw('count(*) as total'))
+            User::select(DB::raw(TimeSeries::yearExpression().' as year'), DB::raw('count(*) as total'))
                 ->groupBy('year')
                 ->get()
         );

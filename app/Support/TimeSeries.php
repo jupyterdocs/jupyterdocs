@@ -3,9 +3,48 @@
 namespace App\Support;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class TimeSeries
 {
+    /**
+     * SQL expression to format a datetime column as 'YYYY-MM-DD', portable
+     * across the drivers this app runs on (pgsql in dev, mysql in
+     * production, sqlite in tests).
+     */
+    public static function dayExpression(string $column = 'created_at'): string
+    {
+        return match (DB::getDriverName()) {
+            'pgsql' => "TO_CHAR({$column}, 'YYYY-MM-DD')",
+            'sqlite' => "strftime('%Y-%m-%d', {$column})",
+            default => "DATE_FORMAT({$column}, '%Y-%m-%d')",
+        };
+    }
+
+    /**
+     * Same as dayExpression() but formatted as 'YYYY-MM'.
+     */
+    public static function monthExpression(string $column = 'created_at'): string
+    {
+        return match (DB::getDriverName()) {
+            'pgsql' => "TO_CHAR({$column}, 'YYYY-MM')",
+            'sqlite' => "strftime('%Y-%m', {$column})",
+            default => "DATE_FORMAT({$column}, '%Y-%m')",
+        };
+    }
+
+    /**
+     * SQL expression that extracts the year as an integer. EXTRACT(YEAR
+     * FROM ...) works on pgsql/mysql but SQLite has no EXTRACT().
+     */
+    public static function yearExpression(string $column = 'created_at'): string
+    {
+        return match (DB::getDriverName()) {
+            'sqlite' => "CAST(strftime('%Y', {$column}) AS INTEGER)",
+            default => "EXTRACT(YEAR FROM {$column})",
+        };
+    }
+
     /**
      * Turn a "year => total" collection into a gap-filled series from the
      * earliest year seen through the current year.
