@@ -22,6 +22,12 @@ class DatabaseSeeder extends Seeder
         'Lab Manual',
         'Study Guide',
         'Assignment',
+        'Novel',
+        'Journal',
+        'Report',
+        'Letter',
+        'Newspaper',
+        'Blog',
     ] as $name) {
         ResourceType::firstOrCreate(
             ['slug' => Str::slug($name)],
