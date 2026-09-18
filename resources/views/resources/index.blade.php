@@ -29,7 +29,7 @@
                         @endforeach
                     </select>
                 </div>
-                <button type="submit" class="inline-flex items-center px-5 py-2.5 bg-moss dark:bg-sage text-jd-bg dark:text-pine rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:hover:bg-mint transition">
+                <button type="submit" class="inline-flex items-center px-5 py-2.5 bg-moss dark:bg-ember text-jd-bg dark:text-pine rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:hover:bg-ember-bright transition">
                     {{ __('Search') }}
                 </button>
             </form>

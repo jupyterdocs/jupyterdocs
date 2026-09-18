@@ -62,6 +62,8 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/content', [ContentController::class, 'index'])->name('content.index');
 
+        Route::delete('/resources/{resource}', [ResourceController::class, 'destroy'])->name('resources.destroy');
+
         Route::get('/moderation', [ModerationController::class, 'index'])->name('moderation.index');
         Route::post('/moderation/{resource}/approve', [ModerationController::class, 'approve'])->name('moderation.approve');
         Route::post('/moderation/{resource}/reject', [ModerationController::class, 'reject'])->name('moderation.reject');

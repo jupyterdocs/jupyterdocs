@@ -21,7 +21,7 @@
                     <a href="{{ route('admin.reports.index', ['status' => $key]) }}"
                        @class([
                            'px-3 py-1.5 rounded-full text-xs font-display font-semibold border transition',
-                           'bg-moss text-jd-bg border-moss dark:bg-sage dark:text-pine dark:border-sage' => $status === $key,
+                           'bg-moss text-jd-bg border-moss dark:bg-ember dark:text-pine dark:border-sage' => $status === $key,
                            'border-pine/20 dark:border-mint/20 text-jd-ink-muted dark:text-sage hover:bg-jd-surface-2 dark:hover:bg-cypress' => $status !== $key,
                        ])>{{ $label }}</a>
                 @endforeach
@@ -64,7 +64,7 @@
                                     @csrf
                                     @method('PATCH')
                                     <input type="hidden" name="status" value="resolved">
-                                    <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-moss dark:bg-sage text-jd-bg dark:text-pine rounded-lg text-xs font-display font-semibold hover:bg-cypress dark:hover:bg-mint">{{ __('Mark resolved') }}</button>
+                                    <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-moss dark:bg-ember text-jd-bg dark:text-pine rounded-lg text-xs font-display font-semibold hover:bg-cypress dark:hover:bg-ember-bright">{{ __('Mark resolved') }}</button>
                                 </form>
                                 <form method="POST" action="{{ route('admin.reports.update', $report) }}">
                                     @csrf

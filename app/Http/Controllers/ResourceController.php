@@ -229,6 +229,13 @@ class ResourceController extends Controller
         return view('resources.mine', ['resources' => $resources]);
     }
 
+    public function destroy(Resource $resource)
+    {
+        $resource->delete();
+
+        return redirect()->route('resources.index')->with('status', 'Resource deleted.');
+    }
+
     private function firstOrCreateByName(string $modelClass, ?string $name)
     {
         $name = trim((string) $name);

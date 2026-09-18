@@ -82,7 +82,7 @@
                     </x-dropdown>
                 @else
                     <a href="{{ route('login') }}" class="text-sm font-display text-jd-ink-muted dark:text-sage hover:text-pine dark:hover:text-mint">{{ __('Log in') }}</a>
-                    <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 bg-moss text-jd-bg rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:bg-sage dark:text-pine dark:hover:bg-mint transition">{{ __('Register') }}</a>
+                    <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 bg-moss text-jd-bg rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:bg-ember dark:text-pine dark:hover:bg-ember-bright transition">{{ __('Register') }}</a>
                 @endauth
             </div>
 
