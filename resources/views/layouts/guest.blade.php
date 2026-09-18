@@ -6,6 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'JupyterDocs') }}</title>
+        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
 
         <!-- Applied before paint so the stored theme choice never flashes the wrong one -->
         <script>
@@ -31,7 +32,7 @@
         <div class="min-h-screen flex flex-col bg-jd-bg dark:bg-abyss transition-colors">
             <header class="px-6 py-5 flex items-center justify-between">
                 <a href="/" class="inline-flex items-center gap-2 text-pine dark:text-mint">
-                    <svg class="w-7 h-7" viewBox="0 0 640 640"><use href="#jupyterMark"/></svg>
+                    <svg class="w-7 h-7" viewBox="0 0 640 640"><use href="#jupyterMarkFlat"/></svg>
                     <span class="font-bold text-base">Jupyter<span class="text-jd-ink-muted dark:text-sage font-medium">Docs</span></span>
                 </a>
                 <button

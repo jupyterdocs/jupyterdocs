@@ -7,6 +7,7 @@
         <meta name="login-url" content="{{ route('login') }}">
 
         <title>{{ config('app.name', 'JupyterDocs') }}</title>
+        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
 
         <!-- Applied before paint so the stored theme choice never flashes the wrong one -->
         <script>

@@ -6,6 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'JupyterDocs') }}</title>
+        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
         <meta name="description" content="Thousands of past papers, lecture notes, and study guides — searchable by anyone, unlocked by anyone who contributes.">
 
         <!-- Applied before paint so the stored theme choice never flashes the wrong one -->
@@ -42,10 +43,10 @@
                 <div>
                     <p class="text-xs font-semibold tracking-[0.13em] uppercase text-jd-ink-muted dark:text-sage mb-3.5">Academic resource marketplace</p>
                     <h1 class="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.08] mb-4">
-                        Share three. Unlock the whole archive.
+                        Share two. Unlock the whole archive.
                     </h1>
                     <p class="font-serif text-base sm:text-lg leading-relaxed text-jd-ink-muted dark:text-sage max-w-[46ch] mb-6">
-                        Thousands of past papers, lecture notes, and study guides &mdash; searchable by anyone, unlocked by anyone who contributes three approved uploads of their own.
+                        Thousands of past papers, lecture notes, and study guides &mdash; searchable by anyone, unlocked by anyone who contributes two approved uploads of their own.
                     </p>
                     <div class="flex flex-wrap gap-3 mb-5">
                         <a href="{{ route('resources.create') }}" class="inline-flex items-center px-5 py-3 rounded-lg text-sm font-semibold bg-moss text-jd-bg hover:bg-cypress dark:bg-sage dark:text-pine dark:hover:bg-mint transition">
@@ -88,8 +89,8 @@
                     </div>
                     <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 rounded-2xl p-5">
                         <div class="w-8 h-8 rounded-full bg-jd-surface-2 dark:bg-cypress border border-pine/10 dark:border-mint/10 flex items-center justify-center text-sm font-bold text-moss dark:text-sage mb-4">3</div>
-                        <h3 class="font-bold mb-2">Unlock at three</h3>
-                        <p class="text-sm text-jd-ink-muted dark:text-sage leading-relaxed">Once you have 3 approved uploads, every download on JupyterDocs is yours &mdash; and your own uploads are always downloadable from day one.</p>
+                        <h3 class="font-bold mb-2">Unlock at two</h3>
+                        <p class="text-sm text-jd-ink-muted dark:text-sage leading-relaxed">Once you have 2 approved uploads, every download on JupyterDocs is yours &mdash; and your own uploads are always downloadable from day one.</p>
                     </div>
                 </div>
             </section>

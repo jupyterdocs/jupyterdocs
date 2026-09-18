@@ -18,7 +18,7 @@ class Resource extends Model
 {
     use HasFactory, SoftDeletes;
 
-    public const MIN_UPLOADS_TO_DOWNLOAD = 3;
+    public const MIN_UPLOADS_TO_DOWNLOAD = 2;
 
     protected $fillable = [
         'uploader_id',

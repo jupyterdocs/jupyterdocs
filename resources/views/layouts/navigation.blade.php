@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('home') }}" class="inline-flex items-center gap-2 text-pine dark:text-mint">
-                        <svg class="w-7 h-7" viewBox="0 0 640 640"><use href="#jupyterMark"/></svg>
+                        <svg class="w-7 h-7" viewBox="0 0 640 640"><use href="#jupyterMarkFlat"/></svg>
                         <span class="font-display font-bold text-base hidden sm:inline">Jupyter<span class="text-jd-ink-muted dark:text-sage font-medium">Docs</span></span>
                     </a>
                 </div>

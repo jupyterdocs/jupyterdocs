@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="mb-5">
         <h1 class="font-display font-bold text-xl text-pine dark:text-mint">Create your account</h1>
-        <p class="mt-1.5 text-sm text-jd-ink-muted dark:text-sage font-serif italic">Upload 3 documents, unlock every download.</p>
+        <p class="mt-1.5 text-sm text-jd-ink-muted dark:text-sage font-serif italic">Upload 2 documents, unlock every download.</p>
     </div>
 
     <form method="POST" action="{{ route('register') }}">
