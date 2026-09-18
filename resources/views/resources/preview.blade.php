@@ -53,7 +53,7 @@
                 <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 rounded-xl shadow-sm p-4 flex flex-wrap items-center gap-3">
                     <form method="POST" action="{{ route('admin.moderation.approve', $resource) }}">
                         @csrf
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-moss dark:bg-sage text-jd-bg dark:text-pine rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:hover:bg-mint transition">
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-moss dark:bg-ember text-jd-bg dark:text-pine rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:hover:bg-ember-bright transition">
                             {{ __('Approve') }}
                         </button>
                     </form>

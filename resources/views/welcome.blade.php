@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -46,8 +46,8 @@
         <script>
             (function () {
                 try {
-                    if (localStorage.getItem('jd-theme') === 'light') {
-                        document.documentElement.classList.remove('dark');
+                    if (localStorage.getItem('jd-theme') === 'dark') {
+                        document.documentElement.classList.add('dark');
                     }
                 } catch (e) {}
             })();
@@ -83,7 +83,7 @@
                         Thousands of past papers, lecture notes, and study guides &mdash; searchable by anyone, unlocked by anyone who contributes two approved uploads of their own.
                     </p>
                     <div class="flex flex-wrap gap-3 mb-5">
-                        <a href="{{ route('resources.create') }}" class="inline-flex items-center px-5 py-3 rounded-lg text-sm font-semibold bg-moss text-jd-bg hover:bg-cypress dark:bg-sage dark:text-pine dark:hover:bg-mint transition">
+                        <a href="{{ route('resources.create') }}" class="inline-flex items-center px-5 py-3 rounded-lg text-sm font-semibold bg-moss text-jd-bg hover:bg-cypress dark:bg-ember dark:text-pine dark:hover:bg-ember-bright transition">
                             Upload a document
                         </a>
                         <a href="{{ route('resources.index') }}" class="inline-flex items-center px-5 py-3 rounded-lg text-sm font-semibold border border-pine/20 dark:border-mint/20 hover:bg-jd-surface-2 dark:hover:bg-cypress transition">
@@ -185,7 +185,7 @@
                 <div class="text-center bg-gradient-to-br from-jd-surface-2 to-white dark:from-cypress dark:to-pine rounded-3xl px-6 py-12 sm:py-16 flex flex-col items-center gap-4">
                     <h2 class="text-2xl sm:text-3xl font-bold tracking-tight max-w-[24ch]">Your notes are worth more shared.</h2>
                     <p class="text-jd-ink-muted dark:text-sage max-w-[40ch]">Upload one file, help unlock the archive for everyone else doing the same thing you are.</p>
-                    <a href="{{ route('resources.create') }}" class="inline-flex items-center px-5 py-3 rounded-lg text-sm font-semibold bg-moss text-jd-bg hover:bg-cypress dark:bg-sage dark:text-pine dark:hover:bg-mint transition mt-1.5">
+                    <a href="{{ route('resources.create') }}" class="inline-flex items-center px-5 py-3 rounded-lg text-sm font-semibold bg-moss text-jd-bg hover:bg-cypress dark:bg-ember dark:text-pine dark:hover:bg-ember-bright transition mt-1.5">
                         Upload a document
                     </a>
                 </div>

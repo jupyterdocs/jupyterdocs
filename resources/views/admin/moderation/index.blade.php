@@ -49,7 +49,7 @@
 
                             <form method="POST" action="{{ route('admin.moderation.approve', $resource) }}">
                                 @csrf
-                                <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-moss dark:bg-sage text-jd-bg dark:text-pine rounded-lg text-xs font-display font-semibold hover:bg-cypress dark:hover:bg-mint">
+                                <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-moss dark:bg-ember text-jd-bg dark:text-pine rounded-lg text-xs font-display font-semibold hover:bg-cypress dark:hover:bg-ember-bright">
                                     {{ __('Approve') }}
                                 </button>
                             </form>

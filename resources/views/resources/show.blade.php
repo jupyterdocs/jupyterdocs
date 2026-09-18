@@ -132,7 +132,7 @@
                             @if ($canDownload)
                                 <form method="POST" action="{{ route('resources.download', $resource) }}">
                                     @csrf
-                                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-moss dark:bg-sage text-jd-bg dark:text-pine rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:hover:bg-mint transition">
+                                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-moss dark:bg-ember text-jd-bg dark:text-pine rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:hover:bg-ember-bright transition">
                                         {{ __('Download') }}
                                     </button>
                                 </form>
@@ -143,7 +143,7 @@
                                 </div>
                             @endif
                         @else
-                            <a href="{{ route('login') }}" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-moss dark:bg-sage text-jd-bg dark:text-pine rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:hover:bg-mint transition">
+                            <a href="{{ route('login') }}" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-moss dark:bg-ember text-jd-bg dark:text-pine rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:hover:bg-ember-bright transition">
                                 {{ __('Log in to download') }}
                             </a>
                         @endauth
@@ -162,6 +162,16 @@
                             {{ __('Share') }}
                         </button>
                         <p id="share-status" class="text-xs text-center text-jd-ink-muted dark:text-sage h-4"></p>
+
+                        @if (Auth::user()?->isAdmin())
+                            <form method="POST" action="{{ route('admin.resources.destroy', $resource) }}" onsubmit="return confirm('{{ __('Delete this resource permanently? This cannot be undone from the UI.') }}')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-transparent border border-jd-danger text-jd-danger rounded-lg text-sm font-display font-semibold hover:bg-jd-danger hover:text-white transition">
+                                    {{ __('Delete Resource') }}
+                                </button>
+                            </form>
+                        @endif
                     </div>
 
                     @if ($resource->status === 'approved')
