@@ -165,6 +165,12 @@ class ResourceController extends Controller
 
         $path = $file->store('resources', config('filesystems.resource_disk'));
 
+        if ($path === false) {
+            return back()
+                ->withErrors(['file' => 'We could not save your file right now. Please try again in a moment.'])
+                ->withInput();
+        }
+
         $resource = Resource::create([
             'uploader_id' => auth()->id(),
             'uploader_name' => auth()->guest() ? $validated['uploader_name'] : null,
