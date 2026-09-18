@@ -1,4 +1,57 @@
-<x-app-layout>
+@php
+    $seoDescription = $resource->description
+        ? \Illuminate\Support\Str::limit(strip_tags($resource->description), 155)
+        : trim(($resource->resourceType->name ?? 'Document').' — '.($resource->course->name ?? '').' '.($resource->university->name ?? '')).'. Free to view on JupyterDocs.';
+
+    $structuredData = json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'LearningResource',
+        'name' => $resource->title,
+        'description' => $seoDescription,
+        'learningResourceType' => $resource->resourceType->name ?? 'Document',
+        'encodingFormat' => $resource->format,
+        'isAccessibleForFree' => true,
+        'dateCreated' => $resource->created_at->toAtomString(),
+        'datePublished' => $resource->created_at->toAtomString(),
+        'author' => [
+            '@type' => 'Person',
+            'name' => $resource->uploaderDisplayName(),
+        ],
+        'about' => array_filter([
+            $resource->course->name ?? null,
+        ]),
+        'interactionStatistic' => [
+            '@type' => 'InteractionCounter',
+            'interactionType' => 'https://schema.org/DownloadAction',
+            'userInteractionCount' => $resource->downloads_count,
+        ],
+        'thumbnailUrl' => $resource->thumbnailUrl(),
+    ], JSON_UNESCAPED_SLASHES);
+
+    $breadcrumbData = json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => [
+            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+            ['@type' => 'ListItem', 'position' => 2, 'name' => 'Browse', 'item' => route('resources.index')],
+            ['@type' => 'ListItem', 'position' => 3, 'name' => $resource->title, 'item' => route('resources.show', $resource)],
+        ],
+    ], JSON_UNESCAPED_SLASHES);
+@endphp
+
+<x-app-layout
+    :title="$resource->title"
+    :description="$seoDescription"
+    :canonical="route('resources.show', $resource)"
+    :image="$resource->thumbnailUrl()"
+    type="article"
+    :noindex="$resource->status !== 'approved'"
+>
+    <x-slot name="structuredData">
+        <script type="application/ld+json">{!! $structuredData !!}</script>
+        <script type="application/ld+json">{!! $breadcrumbData !!}</script>
+    </x-slot>
+
     <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
         @if (session('status'))
@@ -190,7 +243,7 @@
                                 {{ strtoupper($item->format) }}
                             </span>
                             @if ($item->thumbnailUrl())
-                                <img src="{{ $item->thumbnailUrl() }}" class="w-full h-full object-cover object-top" alt="">
+                                <img src="{{ $item->thumbnailUrl() }}" class="w-full h-full object-cover object-top" alt="{{ $item->title }} thumbnail" loading="lazy">
                             @else
                                 <svg class="w-6 h-6 text-sage/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

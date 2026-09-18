@@ -1,2 +1,16 @@
 User-agent: *
-Disallow:
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /my-uploads
+Disallow: /saved
+Disallow: /resources/*/preview
+Disallow: /resources/*/read
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /confirm-password
+Disallow: /verify-email
+
+Sitemap: https://jupyterdocs.com/sitemap.xml

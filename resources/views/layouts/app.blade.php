@@ -6,7 +6,37 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="login-url" content="{{ route('login') }}">
 
-        <title>{{ config('app.name', 'JupyterDocs') }}</title>
+        @php
+            $metaTitle = $title ? $title.' · '.config('app.name', 'JupyterDocs') : config('app.name', 'JupyterDocs').' — Free Lecture Notes, Past Papers & Study Guides';
+            $metaDescription = $description ?? 'Search thousands of student-uploaded lecture notes, past exam papers, and study guides on JupyterDocs. Upload two documents to unlock free downloads.';
+            $metaCanonical = $canonical ?? url()->current();
+        @endphp
+
+        <title>{{ $metaTitle }}</title>
+        <meta name="description" content="{{ $metaDescription }}">
+        <link rel="canonical" href="{{ $metaCanonical }}">
+        @if ($noindex)
+            <meta name="robots" content="noindex, follow">
+        @endif
+
+        <meta property="og:type" content="{{ $type }}">
+        <meta property="og:site_name" content="{{ config('app.name', 'JupyterDocs') }}">
+        <meta property="og:title" content="{{ $metaTitle }}">
+        <meta property="og:description" content="{{ $metaDescription }}">
+        <meta property="og:url" content="{{ $metaCanonical }}">
+        @if ($image)
+            <meta property="og:image" content="{{ $image }}">
+        @endif
+        <meta name="twitter:card" content="{{ $image ? 'summary_large_image' : 'summary' }}">
+        <meta name="twitter:title" content="{{ $metaTitle }}">
+        <meta name="twitter:description" content="{{ $metaDescription }}">
+        @if ($image)
+            <meta name="twitter:image" content="{{ $image }}">
+        @endif
+        @isset($structuredData)
+            {!! $structuredData !!}
+        @endisset
+
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
 
         <!-- Applied before paint so the stored theme choice never flashes the wrong one -->
@@ -22,6 +52,7 @@
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
 
         <!-- Scripts -->
