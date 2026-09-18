@@ -4,6 +4,14 @@
         <p class="mt-1.5 text-sm text-jd-ink-muted dark:text-sage font-serif italic">Upload 2 documents, unlock every download.</p>
     </div>
 
+    <x-google-auth-button :label="__('Sign up with Google')" />
+
+    <div class="flex items-center gap-3 my-5">
+        <div class="h-px flex-1 bg-pine/10 dark:bg-mint/10"></div>
+        <span class="text-xs text-jd-ink-muted dark:text-sage">{{ __('or') }}</span>
+        <div class="h-px flex-1 bg-pine/10 dark:bg-mint/10"></div>
+    </div>
+
     <form method="POST" action="{{ route('register') }}">
         @csrf
 

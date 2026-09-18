@@ -7,6 +7,14 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
+    <x-google-auth-button :label="__('Continue with Google')" />
+
+    <div class="flex items-center gap-3 my-5">
+        <div class="h-px flex-1 bg-pine/10 dark:bg-mint/10"></div>
+        <span class="text-xs text-jd-ink-muted dark:text-sage">{{ __('or') }}</span>
+        <div class="h-px flex-1 bg-pine/10 dark:bg-mint/10"></div>
+    </div>
+
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
