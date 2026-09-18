@@ -5,9 +5,42 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'JupyterDocs') }}</title>
+        @php
+            $metaTitle = config('app.name', 'JupyterDocs').' — Free Lecture Notes, Past Papers & Study Guides';
+            $metaDescription = 'Thousands of past papers, lecture notes, and study guides — searchable by anyone, unlocked by anyone who contributes two approved uploads of their own.';
+        @endphp
+
+        <title>{{ $metaTitle }}</title>
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
-        <meta name="description" content="Thousands of past papers, lecture notes, and study guides — searchable by anyone, unlocked by anyone who contributes.">
+        <meta name="description" content="{{ $metaDescription }}">
+        <link rel="canonical" href="{{ url('/') }}">
+
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="{{ config('app.name', 'JupyterDocs') }}">
+        <meta property="og:title" content="{{ $metaTitle }}">
+        <meta property="og:description" content="{{ $metaDescription }}">
+        <meta property="og:url" content="{{ url('/') }}">
+        <meta name="twitter:card" content="summary">
+        <meta name="twitter:title" content="{{ $metaTitle }}">
+        <meta name="twitter:description" content="{{ $metaDescription }}">
+
+        <script type="application/ld+json">
+            {!! json_encode([
+                '@context' => 'https://schema.org',
+                '@type' => 'WebSite',
+                'name' => config('app.name', 'JupyterDocs'),
+                'url' => url('/'),
+                'description' => $metaDescription,
+                'potentialAction' => [
+                    '@type' => 'SearchAction',
+                    'target' => [
+                        '@type' => 'EntryPoint',
+                        'urlTemplate' => route('resources.index').'?q={search_term_string}',
+                    ],
+                    'query-input' => 'required name=search_term_string',
+                ],
+            ], JSON_UNESCAPED_SLASHES) !!}
+        </script>
 
         <!-- Applied before paint so the stored theme choice never flashes the wrong one -->
         <script>
@@ -22,6 +55,7 @@
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
 
         <!-- Scripts -->

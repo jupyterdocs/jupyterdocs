@@ -9,6 +9,7 @@ use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\ResourceInteractionController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 // Marketing landing page for guests; signed-in users go straight to their dashboard.
@@ -23,6 +24,8 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/browse', [ResourceController::class, 'index'])->name('resources.index');
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 // Admins land on the moderation queue; everyone else lands on the archive.
 Route::get('/dashboard', function () {
