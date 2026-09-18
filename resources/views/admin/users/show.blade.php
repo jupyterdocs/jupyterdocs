@@ -67,6 +67,7 @@
                             </button>
                         </form>
 
+                        @unless ($user->isAdmin())
                         <form method="POST" action="{{ route('admin.users.toggle-active', $user) }}" onsubmit="return confirm('{{ $user->isDeactivated() ? __('Reactivate this account?') : __('Deactivate this account? They will be signed out immediately and cannot log back in until reactivated.') }}')">
                             @csrf
                             @method('patch')
@@ -76,6 +77,7 @@
                                 'border-jd-danger/30 text-jd-danger hover:bg-jd-danger/10' => ! $user->isDeactivated(),
                             ])>{{ $user->isDeactivated() ? __('Reactivate Account') : __('Deactivate Account') }}</button>
                         </form>
+                        @endunless
                     </div>
                 @endif
             </div>

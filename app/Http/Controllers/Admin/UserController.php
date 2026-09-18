@@ -84,6 +84,10 @@ class UserController extends Controller
             return back()->with('status', "You can't deactivate your own account.");
         }
 
+        if ($user->isAdmin()) {
+            return back()->with('status', "Admin accounts can't be deactivated. Change their role first if that's really the intent.");
+        }
+
         if ($user->isDeactivated()) {
             $user->update(['deactivated_at' => null]);
 

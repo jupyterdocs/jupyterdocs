@@ -61,10 +61,7 @@
 
     <symbol id="jupyterMarkFlat" viewBox="0 0 640 640">
         <circle cx="320" cy="320" r="120" fill="none" stroke="currentColor" stroke-width="14"/>
-        <g class="gaze"><circle cx="320" cy="320" r="28" fill="currentColor"/></g>
-        <g transform="translate(320,320)"><circle class="moon moon-a" r="9" fill="currentColor"/></g>
-        <g transform="translate(320,320)"><circle class="moon moon-b" r="7" fill="currentColor" opacity="0.75"/></g>
-        <g transform="translate(320,320)"><circle class="moon moon-c" r="5.5" fill="currentColor" opacity="0.55"/></g>
+        <circle cx="366" cy="366" r="22" fill="currentColor"/>
     </symbol>
 </svg>
 
