@@ -15,7 +15,7 @@
             @endif
 
             <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-sm rounded-xl p-4 text-sm text-jd-ink-muted dark:text-sage">
-                {{ __('Approved uploads:') }} <span class="font-display font-semibold text-pine dark:text-mint">{{ Auth::user()->approved_uploads_count }}</span>
+                {{ __('Uploads:') }} <span class="font-display font-semibold text-pine dark:text-mint">{{ Auth::user()->uploads_count }}</span>
                 @unless (Auth::user()->canDownload())
                     &mdash; {{ __(':n more to unlock downloads.', ['n' => Auth::user()->uploadsNeededToUnlockDownloads()]) }}
                 @else

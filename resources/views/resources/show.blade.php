@@ -20,6 +20,7 @@
         'about' => array_filter([
             $resource->course->name ?? null,
         ]),
+        'keywords' => $resource->tags->pluck('name')->implode(', '),
         'interactionStatistic' => [
             '@type' => 'InteractionCounter',
             'interactionType' => 'https://schema.org/DownloadAction',
@@ -122,7 +123,7 @@
                     @if ($resource->tags->isNotEmpty())
                         <div class="mt-4 flex flex-wrap gap-2">
                             @foreach ($resource->tags as $tag)
-                                <span class="text-xs bg-jd-surface-2 dark:bg-cypress text-jd-ink-muted dark:text-sage border border-pine/10 dark:border-mint/10 rounded-full px-3 py-1">#{{ $tag->name }}</span>
+                                <a href="{{ route('resources.index', ['q' => $tag->name]) }}" class="text-xs bg-jd-surface-2 dark:bg-cypress text-jd-ink-muted dark:text-sage border border-pine/10 dark:border-mint/10 rounded-full px-3 py-1 hover:border-moss dark:hover:border-sage hover:text-pine dark:hover:text-mint transition">#{{ $tag->name }}</a>
                             @endforeach
                         </div>
                     @endif

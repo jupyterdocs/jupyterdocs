@@ -11,6 +11,7 @@ use App\Models\ResourceVote;
 use App\Models\Tag;
 use App\Models\University;
 use App\Support\OfficeDocumentInspector;
+use App\Support\TagGenerator;
 use App\Support\ThumbnailStorage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -196,27 +197,24 @@ class ResourceController extends Controller
             ConvertResourceToPdf::dispatch($resource->id);
         }
 
-        if (! empty($validated['tags'])) {
-            $tagIds = collect(explode(',', $validated['tags']))
-                ->map(fn ($name) => trim($name))
-                ->filter()
-                ->map(fn ($name) => Tag::firstOrCreate(
-                    ['slug' => Str::slug($name)],
-                    ['name' => $name]
-                )->id);
+        $tagNames = TagGenerator::generate($validated['title'], $validated['description']);
 
-            $resource->tags()->sync($tagIds);
-        }
+        $tagIds = collect($tagNames)->map(fn ($name) => Tag::firstOrCreate(
+            ['slug' => Str::slug($name)],
+            ['name' => $name]
+        )->id);
+
+        $resource->tags()->sync($tagIds);
 
         if (auth()->guest()) {
             session()->push('guest_uploads', $resource->id);
 
             return redirect()->route('resources.show', $resource)
-                ->with('status', 'Uploaded! It will appear once an admin approves it. Create an account to track your uploads and unlock downloads.');
+                ->with('status', 'Uploaded! It\'ll appear once an admin reviews it. Create an account to track your uploads and unlock downloads.');
         }
 
         return redirect()->route('resources.mine')
-            ->with('status', 'Uploaded! It will appear once an admin approves it.');
+            ->with('status', 'Uploaded! It already counts toward unlocking your downloads — no need to wait for admin approval. It\'ll appear in search once an admin reviews it.');
     }
 
     public function mine()

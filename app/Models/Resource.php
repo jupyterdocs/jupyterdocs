@@ -189,7 +189,7 @@ class Resource extends Model
 
         return $user->id === $this->uploader_id
             || $user->isAdmin()
-            || $user->approved_uploads_count >= self::MIN_UPLOADS_TO_DOWNLOAD;
+            || $user->uploads_count >= self::MIN_UPLOADS_TO_DOWNLOAD;
     }
 
     public function isViewableBy(?User $user, ?array $guestUploadIds = null): bool

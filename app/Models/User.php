@@ -26,6 +26,7 @@ class User extends Authenticatable
         'role',
         'google_id',
         'deactivated_at',
+        'uploads_count',
     ];
 
     /**
@@ -119,11 +120,11 @@ class User extends Authenticatable
 
     public function canDownload(): bool
     {
-        return $this->approved_uploads_count >= Resource::MIN_UPLOADS_TO_DOWNLOAD;
+        return $this->uploads_count >= Resource::MIN_UPLOADS_TO_DOWNLOAD;
     }
 
     public function uploadsNeededToUnlockDownloads(): int
     {
-        return max(0, Resource::MIN_UPLOADS_TO_DOWNLOAD - $this->approved_uploads_count);
+        return max(0, Resource::MIN_UPLOADS_TO_DOWNLOAD - $this->uploads_count);
     }
 }

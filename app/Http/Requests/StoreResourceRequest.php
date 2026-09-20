@@ -15,11 +15,10 @@ class StoreResourceRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:2000'],
+            'description' => ['required', 'string', 'min:125', 'max:5000'],
             'resource_type_id' => ['required', 'exists:resource_types,id'],
             'university' => ['nullable', 'string', 'max:255'],
             'course' => ['nullable', 'string', 'max:255'],
-            'tags' => ['nullable', 'string', 'max:255'],
             'file' => ['required', 'file', 'max:20480', 'mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,txt'],
             'confirm_ownership' => ['accepted'],
             'uploader_name' => [$this->user() ? 'nullable' : 'required', 'string', 'max:255'],
@@ -33,6 +32,8 @@ class StoreResourceRequest extends FormRequest
     {
         return [
             'confirm_ownership.accepted' => 'You must confirm you have the right to distribute this material.',
+            'description.required' => 'Please add a description — it helps other students find this document.',
+            'description.min' => 'Your description needs to be at least :min characters (it\'s currently shorter) — a fuller description helps other students find this document.',
         ];
     }
 }

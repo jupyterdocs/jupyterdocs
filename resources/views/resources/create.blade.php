@@ -12,7 +12,7 @@
                 @auth
                     @if (! Auth::user()->canDownload())
                         <div class="mb-4 rounded-lg bg-jd-surface-2 dark:bg-cypress border border-moss/20 dark:border-sage/20 text-pine dark:text-mint px-4 py-2 text-sm">
-                            {{ __('Every upload gets you closer to unlocking downloads. You need :n more approved upload(s).', ['n' => Auth::user()->uploadsNeededToUnlockDownloads()]) }}
+                            {{ __('This upload counts toward unlocking downloads right away — no admin approval needed. You need :n more.', ['n' => Auth::user()->uploadsNeededToUnlockDownloads()]) }}
                         </div>
                     @endif
                 @else
@@ -25,6 +25,28 @@
 
                 <form method="POST" action="{{ route('resources.store') }}" enctype="multipart/form-data" class="space-y-4">
                     @csrf
+
+                    <div>
+                        <x-input-label for="file" :value="__('Document (PDF, Word, PowerPoint, Excel or text, max 20MB)')" />
+                        <label for="file" id="dropzone" class="mt-1 flex flex-col items-center justify-center gap-2 w-full rounded-xl border-2 border-dashed border-pine/20 dark:border-mint/20 bg-jd-surface-2 dark:bg-cypress px-4 py-8 text-center cursor-pointer hover:border-moss dark:hover:border-sage transition">
+                            <svg class="w-8 h-8 text-jd-ink-muted dark:text-sage" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
+                            </svg>
+                            <span id="dropzone_label" class="text-sm font-display font-medium text-pine dark:text-mint">{{ __('Click to choose a file, or drag it here') }}</span>
+                            <input id="file" name="file" type="file" class="sr-only" required>
+                        </label>
+                        <x-input-error :messages="$errors->get('file')" class="mt-2" />
+                        <p id="thumbnail_status" class="mt-1 text-xs text-jd-ink-muted dark:text-sage font-mono"></p>
+                        <img id="thumbnail_preview" hidden class="mt-2 h-40 rounded-lg border border-pine/10 dark:border-mint/10 object-cover" alt="Preview of first page">
+                        <input type="hidden" name="thumbnail_data" id="thumbnail_data">
+                        <input type="hidden" name="pages" id="pages_field">
+                    </div>
+
+                    <div>
+                        <x-input-label for="title" :value="__('Title')" />
+                        <x-text-input id="title" name="title" type="text" class="mt-1 block w-full" :value="old('title')" required placeholder="e.g. Mathematics for IT Professionals — 2nd Edition" />
+                        <x-input-error :messages="$errors->get('title')" class="mt-2" />
+                    </div>
 
                     @guest
                         <div class="grid grid-cols-2 gap-4">
@@ -42,14 +64,12 @@
                     @endguest
 
                     <div>
-                        <x-input-label for="title" :value="__('Title')" />
-                        <x-text-input id="title" name="title" type="text" class="mt-1 block w-full" :value="old('title')" required autofocus />
-                        <x-input-error :messages="$errors->get('title')" class="mt-2" />
-                    </div>
-
-                    <div>
-                        <x-input-label for="description" :value="__('Description')" />
-                        <textarea id="description" name="description" rows="4" class="mt-1 block w-full rounded-lg border-pine/15 dark:border-mint/15 bg-white dark:bg-cypress text-pine dark:text-mint shadow-sm focus:border-moss dark:focus:border-sage focus:ring-moss dark:focus:ring-sage font-display">{{ old('description') }}</textarea>
+                        <div class="flex items-baseline justify-between">
+                            <x-input-label for="description" :value="__('Description')" />
+                            <span id="description_count" class="text-xs font-mono text-jd-ink-muted dark:text-sage">0 / 125</span>
+                        </div>
+                        <textarea id="description" name="description" rows="5" minlength="125" required class="mt-1 block w-full rounded-lg border-pine/15 dark:border-mint/15 bg-white dark:bg-cypress text-pine dark:text-mint shadow-sm focus:border-moss dark:focus:border-sage focus:ring-moss dark:focus:ring-sage font-display" placeholder="What is this document, which topics does it cover, and who is it useful for? At least 125 characters — this is what helps other students find it.">{{ old('description') }}</textarea>
+                        <p class="mt-1 text-xs text-jd-ink-muted dark:text-sage">{{ __('At least 125 characters. A good description makes this document easy for others to find.') }}</p>
                         <x-input-error :messages="$errors->get('description')" class="mt-2" />
                     </div>
 
@@ -64,31 +84,21 @@
                         <x-input-error :messages="$errors->get('resource_type_id')" class="mt-2" />
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <x-input-label for="course" :value="__('Course (optional)')" />
-                            <x-text-input id="course" name="course" type="text" class="mt-1 block w-full" :value="old('course')" placeholder="e.g. Database Management Systems II" />
+                    <details class="rounded-lg border border-pine/10 dark:border-mint/10 open:pb-4" @if(old('course') || old('university')) open @endif>
+                        <summary class="cursor-pointer select-none px-3 py-2.5 text-sm font-display font-medium text-jd-ink-muted dark:text-sage">
+                            {{ __('Add course & university (optional)') }}
+                        </summary>
+                        <div class="grid grid-cols-2 gap-4 px-3 pt-1">
+                            <div>
+                                <x-input-label for="course" :value="__('Course')" />
+                                <x-text-input id="course" name="course" type="text" class="mt-1 block w-full" :value="old('course')" placeholder="e.g. Database Management Systems II" />
+                            </div>
+                            <div>
+                                <x-input-label for="university" :value="__('University')" />
+                                <x-text-input id="university" name="university" type="text" class="mt-1 block w-full" :value="old('university')" placeholder="e.g. MUST" />
+                            </div>
                         </div>
-                        <div>
-                            <x-input-label for="university" :value="__('University (optional)')" />
-                            <x-text-input id="university" name="university" type="text" class="mt-1 block w-full" :value="old('university')" placeholder="e.g. MUST" />
-                        </div>
-                    </div>
-
-                    <div>
-                        <x-input-label for="tags" :value="__('Tags (optional, comma separated)')" />
-                        <x-text-input id="tags" name="tags" type="text" class="mt-1 block w-full" :value="old('tags')" placeholder="databases, year 2, 2024" />
-                    </div>
-
-                    <div>
-                        <x-input-label for="file" :value="__('File (PDF, Word, PowerPoint, Excel or text, max 20MB)')" />
-                        <input id="file" name="file" type="file" class="mt-1 block w-full text-sm font-display text-pine dark:text-mint file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-jd-surface-2 dark:file:bg-cypress file:text-pine dark:file:text-mint file:font-display file:font-semibold" required>
-                        <x-input-error :messages="$errors->get('file')" class="mt-2" />
-                        <p id="thumbnail_status" class="mt-1 text-xs text-jd-ink-muted dark:text-sage font-mono"></p>
-                        <img id="thumbnail_preview" hidden class="mt-2 h-40 rounded-lg border border-pine/10 dark:border-mint/10 object-cover" alt="Preview of first page">
-                        <input type="hidden" name="thumbnail_data" id="thumbnail_data">
-                        <input type="hidden" name="pages" id="pages_field">
-                    </div>
+                    </details>
 
                     <div class="flex items-start gap-2">
                         <input id="confirm_ownership" name="confirm_ownership" type="checkbox" class="mt-1 rounded border-pine/20 dark:border-mint/20 dark:bg-cypress text-moss dark:text-sage focus:ring-moss dark:focus:ring-sage" required>
@@ -113,6 +123,37 @@
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         }
 
+        const descriptionField = document.getElementById('description');
+        const descriptionCount = document.getElementById('description_count');
+
+        function updateDescriptionCount() {
+            const len = descriptionField.value.length;
+            descriptionCount.textContent = `${len} / 125`;
+            descriptionCount.classList.toggle('text-jd-success', len >= 125);
+            descriptionCount.classList.toggle('dark:text-jd-success', len >= 125);
+        }
+
+        descriptionField?.addEventListener('input', updateDescriptionCount);
+        updateDescriptionCount();
+
+        const dropzone = document.getElementById('dropzone');
+        const dropzoneLabel = document.getElementById('dropzone_label');
+
+        ['dragover', 'dragleave', 'drop'].forEach((eventName) => {
+            dropzone?.addEventListener(eventName, (e) => e.preventDefault());
+        });
+
+        dropzone?.addEventListener('dragover', () => dropzone.classList.add('border-moss', 'dark:border-sage'));
+        dropzone?.addEventListener('dragleave', () => dropzone.classList.remove('border-moss', 'dark:border-sage'));
+        dropzone?.addEventListener('drop', (e) => {
+            dropzone.classList.remove('border-moss', 'dark:border-sage');
+            const dropped = e.dataTransfer?.files;
+            if (dropped && dropped.length) {
+                document.getElementById('file').files = dropped;
+                document.getElementById('file').dispatchEvent(new Event('change'));
+            }
+        });
+
         document.getElementById('file')?.addEventListener('change', async function (e) {
             const file = e.target.files[0];
             const thumbField = document.getElementById('thumbnail_data');
@@ -127,6 +168,10 @@
 
             if (!file) {
                 return;
+            }
+
+            if (dropzoneLabel) {
+                dropzoneLabel.textContent = file.name;
             }
 
             const isPdf = file.type === 'application/pdf';
