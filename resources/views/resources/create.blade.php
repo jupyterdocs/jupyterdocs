@@ -108,7 +108,7 @@
                     </div>
                     <x-input-error :messages="$errors->get('confirm_ownership')" class="mt-2" />
 
-                    <button type="submit" class="inline-flex items-center px-5 py-2.5 bg-moss dark:bg-ember text-jd-bg dark:text-pine rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:hover:bg-ember-bright transition">
+                    <button type="submit" class="inline-flex items-center px-5 py-2.5 bg-moss dark:bg-ember text-jd-bg dark:text-pine rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:hover:bg-ember-bright active:scale-95 transition">
                         {{ __('Upload') }}
                     </button>
                 </form>

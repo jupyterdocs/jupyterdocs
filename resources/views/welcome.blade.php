@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         @php
@@ -13,6 +13,14 @@
         <title>{{ $metaTitle }}</title>
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
         <meta name="description" content="{{ $metaDescription }}">
+
+        <!-- PWA -->
+        <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+        <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
+        <meta name="theme-color" content="#16352F">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="JupyterDocs">
         <link rel="canonical" href="{{ url('/') }}">
 
         <meta property="og:type" content="website">
@@ -50,6 +58,14 @@
                         document.documentElement.classList.add('dark');
                     }
                 } catch (e) {}
+
+                try {
+                    var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+                    if (standalone && ! sessionStorage.getItem('jd-splash-shown')) {
+                        document.documentElement.classList.add('show-splash');
+                        sessionStorage.setItem('jd-splash-shown', '1');
+                    }
+                } catch (e) {}
             })();
         </script>
 
@@ -61,8 +77,9 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-display antialiased bg-jd-bg text-pine dark:bg-abyss dark:text-mint transition-colors">
+    <body class="font-display antialiased bg-jd-bg text-pine dark:bg-abyss dark:text-mint transition-colors pb-16 sm:pb-0">
         <x-brand-mark-defs />
+        <x-pwa-splash />
 
         {{-- Same navigation partial as the rest of the app, so it never changes as you move from here into the archive. --}}
         @include('layouts.navigation')
@@ -201,5 +218,7 @@
                 <span class="font-serif italic text-sm text-jd-ink-muted dark:text-sage">Notes orbit. Knowledge compounds.</span>
             </div>
         </footer>
+
+        @include('layouts.bottom-nav')
     </body>
 </html>

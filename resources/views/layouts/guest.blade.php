@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ $title ? $title.' · '.config('app.name', 'JupyterDocs') : config('app.name', 'JupyterDocs') }}</title>
@@ -27,6 +27,14 @@
                         document.documentElement.classList.add('dark');
                     }
                 } catch (e) {}
+
+                try {
+                    var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+                    if (standalone && ! sessionStorage.getItem('jd-splash-shown')) {
+                        document.documentElement.classList.add('show-splash');
+                        sessionStorage.setItem('jd-splash-shown', '1');
+                    }
+                } catch (e) {}
             })();
         </script>
 
@@ -40,6 +48,7 @@
     </head>
     <body class="font-display text-pine dark:text-mint antialiased">
         <x-brand-mark-defs />
+        <x-pwa-splash />
 
         <div class="min-h-screen flex flex-col bg-jd-bg dark:bg-abyss transition-colors">
             <header class="px-6 py-5 flex items-center justify-between">
