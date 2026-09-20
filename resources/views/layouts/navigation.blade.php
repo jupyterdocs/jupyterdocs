@@ -42,6 +42,16 @@
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-3">
                 <button
                     type="button"
+                    id="pwa-install"
+                    hidden
+                    class="flex items-center gap-1.5 rounded-full border border-moss/30 dark:border-sage/30 bg-moss/10 dark:bg-sage/10 px-3 py-1.5 text-xs font-display font-semibold text-moss dark:text-sage hover:bg-moss/20 dark:hover:bg-sage/20"
+                >
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v13m0 0-4-4m4 4 4-4M4 19h16"/></svg>
+                    {{ __('Install app') }}
+                </button>
+
+                <button
+                    type="button"
                     id="theme-toggle"
                     aria-label="Toggle light and dark theme"
                     class="flex items-center gap-1.5 rounded-full border border-pine/15 dark:border-mint/15 bg-jd-surface-2 dark:bg-cypress px-3 py-1.5 text-xs font-display font-medium text-pine dark:text-mint"
@@ -88,6 +98,15 @@
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden gap-1">
+                <button
+                    type="button"
+                    id="pwa-install-mobile"
+                    hidden
+                    aria-label="Install app"
+                    class="inline-flex items-center justify-center p-2 rounded-md text-jd-ink-muted dark:text-sage hover:text-pine dark:hover:text-mint hover:bg-jd-surface-2 dark:hover:bg-cypress focus:outline-none transition duration-150 ease-in-out"
+                >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v13m0 0-4-4m4 4 4-4M4 19h16"/></svg>
+                </button>
                 <button
                     type="button"
                     id="theme-toggle-mobile"
@@ -189,6 +208,38 @@
         ['theme-toggle', 'theme-toggle-mobile'].forEach(function (id) {
             var btn = document.getElementById(id);
             if (btn) btn.addEventListener('click', toggle);
+        });
+    })();
+
+    (function () {
+        var deferredPrompt = null;
+        var buttons = ['pwa-install', 'pwa-install-mobile']
+            .map(function (id) { return document.getElementById(id); })
+            .filter(Boolean);
+
+        if (! buttons.length) return;
+
+        window.addEventListener('beforeinstallprompt', function (e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            buttons.forEach(function (btn) { btn.hidden = false; });
+        });
+
+        buttons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                if (! deferredPrompt) return;
+
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.finally(function () {
+                    deferredPrompt = null;
+                    buttons.forEach(function (b) { b.hidden = true; });
+                });
+            });
+        });
+
+        window.addEventListener('appinstalled', function () {
+            deferredPrompt = null;
+            buttons.forEach(function (btn) { btn.hidden = true; });
         });
     })();
 </script>

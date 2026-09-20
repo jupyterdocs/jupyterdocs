@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>You're offline · JupyterDocs</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            background: #F5FAF6;
+            color: #16352F;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        svg { width: 64px; height: 64px; }
+        h1 { font-size: 1.25rem; margin: 0; }
+        p { margin: 0; color: #4A6B60; max-width: 26rem; }
+        button {
+            margin-top: 0.5rem;
+            padding: 0.6rem 1.25rem;
+            border-radius: 0.6rem;
+            border: none;
+            background: #2F6D53;
+            color: #F5FAF6;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <svg viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="320" cy="320" r="300" fill="#0B2B26"/>
+        <circle cx="320" cy="320" r="180" fill="none" stroke="#DAF1DE" stroke-width="30"/>
+        <circle cx="380" cy="380" r="42" fill="#DAF1DE"/>
+    </svg>
+    <h1>You're offline</h1>
+    <p>JupyterDocs needs a connection to search and open documents. Reconnect and try again.</p>
+    <button onclick="location.reload()">Retry</button>
+</body>
+</html>
