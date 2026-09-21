@@ -23,6 +23,7 @@ class GoogleAuthController extends Controller
         $googleUser = Socialite::driver('google')->user();
 
         $user = User::where('google_id', $googleUser->getId())->first();
+        $isNewUser = false;
 
         if (! $user) {
             $user = User::where('email', $googleUser->getEmail())->first();
@@ -43,10 +44,13 @@ class GoogleAuthController extends Controller
             ]);
 
             event(new Registered($user));
+            $isNewUser = true;
         }
 
         Auth::login($user, remember: true);
 
-        return redirect()->route('dashboard');
+        return $isNewUser
+            ? redirect()->route('resources.index')->with('status', User::FREE_DOWNLOAD_WELCOME)
+            : redirect()->route('dashboard');
     }
 }

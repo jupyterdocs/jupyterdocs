@@ -131,15 +131,22 @@
                     <div class="mt-5 pt-5 border-t border-pine/10 dark:border-mint/10 space-y-2">
                         @auth
                             @if ($canDownload)
-                                <form method="POST" action="{{ route('resources.download', $resource) }}">
+                                @php
+                                    $spendsFreeDownload = Auth::id() !== $resource->uploader_id
+                                        && ! Auth::user()->isAdmin()
+                                        && ! Auth::user()->downloads()->where('resource_id', $resource->id)->exists();
+                                @endphp
+                                {{-- The response is a file download, so the page doesn't navigate; reload to show the "free download used" notice. --}}
+                                <form method="POST" action="{{ route('resources.download', $resource) }}"
+                                      @if ($spendsFreeDownload) onsubmit="setTimeout(function () { location.reload(); }, 1500)" @endif>
                                     @csrf
                                     <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-moss dark:bg-ember text-jd-bg dark:text-pine rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:hover:bg-ember-bright transition">
-                                        {{ __('Download') }}
+                                        {{ $spendsFreeDownload ? (Auth::user()->hasFreeDownload() ? __('Download (uses your free download)') : __('Download (uses 1 download)')) : __('Download') }}
                                     </button>
                                 </form>
                             @else
                                 <div class="text-xs text-jd-warning bg-jd-warning/10 border border-jd-warning/20 rounded-lg px-3 py-2">
-                                    {{ __('Upload :n more approved document(s) to unlock downloads.', ['n' => Auth::user()->uploadsNeededToUnlockDownloads()]) }}
+                                    {{ __('You have no downloads left. Upload :n more document(s) to earn another.', ['n' => Auth::user()->uploadsNeededToUnlockDownloads()]) }}
                                     <a href="{{ route('resources.create') }}" class="font-semibold underline block mt-1">{{ __('Upload now') }}</a>
                                 </div>
                             @endif

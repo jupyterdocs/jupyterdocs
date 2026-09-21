@@ -46,6 +46,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Straight to the archive (not /dashboard) so the flashed welcome survives the hop.
+        return redirect()->route('resources.index')->with('status', User::FREE_DOWNLOAD_WELCOME);
     }
 }

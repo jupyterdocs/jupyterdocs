@@ -29,20 +29,25 @@ class ResourceUploadTest extends TestCase
 
         $this->validPayload = [
             'title' => 'Mathematics for IT Professionals',
-            'description' => str_repeat('This textbook covers discrete mathematics and linear algebra for computing students. ', 4),
+            'description' => 'A short poem about what changed after the break up',
             'resource_type_id' => $this->type()->id,
             'confirm_ownership' => '1',
             'file' => UploadedFile::fake()->create('notes.pdf', 500, 'application/pdf'),
         ];
     }
 
-    public function test_description_shorter_than_125_characters_is_rejected(): void
+    public function test_description_outside_2_to_150_characters_is_rejected(): void
     {
         $user = User::factory()->create();
 
         $this->actingAs($user)->post(route('resources.store'), [
             ...$this->validPayload,
-            'description' => 'Too short.',
+            'description' => 'X',
+        ])->assertSessionHasErrors('description');
+
+        $this->actingAs($user)->post(route('resources.store'), [
+            ...$this->validPayload,
+            'description' => str_repeat('a', 151),
         ])->assertSessionHasErrors('description');
 
         $this->assertSame(0, Resource::count());
@@ -52,7 +57,7 @@ class ResourceUploadTest extends TestCase
     {
         $user = User::factory()->create()->refresh();
         $this->assertSame(0, $user->uploads_count);
-        $this->assertFalse($user->canDownload());
+        $this->assertSame(1, $user->downloadsRemaining());
 
         $this->actingAs($user)->post(route('resources.store'), $this->validPayload)
             ->assertRedirect(route('resources.mine'));
@@ -66,7 +71,7 @@ class ResourceUploadTest extends TestCase
         $this->assertSame(1, $user->uploads_count);
         $this->assertSame(0, $user->approved_uploads_count);
         // Still pending admin approval, yet already counts toward the unlock.
-        $this->assertFalse($user->canDownload());
+        $this->assertSame(1, $user->downloadsRemaining());
 
         $this->actingAs($user)->post(route('resources.store'), [
             ...$this->validPayload,
@@ -75,7 +80,7 @@ class ResourceUploadTest extends TestCase
 
         $user->refresh();
         $this->assertSame(2, $user->uploads_count);
-        $this->assertTrue($user->canDownload());
+        $this->assertSame(2, $user->downloadsRemaining());
         $this->assertTrue($resource->fresh()->isDownloadableBy($user));
     }
 }
