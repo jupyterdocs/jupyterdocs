@@ -11,13 +11,7 @@
         @endif
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
 
-        <!-- PWA -->
-        <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
-        <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
-        <meta name="theme-color" content="#16352F">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-        <meta name="apple-mobile-web-app-title" content="JupyterDocs">
+        @include('layouts.pwa-head')
 
         <!-- Applied before paint so the stored theme choice never flashes the wrong one -->
         <script>
@@ -51,7 +45,7 @@
         <x-pwa-splash />
 
         <div class="min-h-screen flex flex-col bg-jd-bg dark:bg-abyss transition-colors">
-            <header class="px-6 py-5 flex items-center justify-between">
+            <header class="safe-top px-6 py-5 flex items-center justify-between">
                 <a href="/" class="inline-flex items-center gap-2 text-pine dark:text-mint">
                     <svg class="w-7 h-7" viewBox="0 0 640 640"><use href="#jupyterMarkFlat"/></svg>
                     <span class="font-bold text-base">Jupyter<span class="text-jd-ink-muted dark:text-sage font-medium">Docs</span></span>

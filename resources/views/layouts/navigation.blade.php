@@ -186,6 +186,27 @@
     </div>
 </nav>
 
+<!-- iOS has no install prompt API, so this walks people through Safari's Add to Home Screen. -->
+<div id="ios-install-sheet" hidden class="fixed inset-0 z-[90] flex items-end sm:items-center justify-center bg-black/50 p-4">
+    <div class="w-full max-w-sm rounded-2xl bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 p-5 shadow-xl safe-bottom">
+        <div class="flex items-start justify-between gap-3">
+            <h2 class="font-display font-bold text-base text-pine dark:text-mint">{{ __('Install JupyterDocs') }}</h2>
+            <button type="button" data-ios-close aria-label="{{ __('Close') }}" class="text-jd-ink-muted dark:text-sage text-xl leading-none">&times;</button>
+        </div>
+        <p id="ios-install-inapp" hidden class="mt-3 rounded-lg bg-jd-warning/10 text-jd-warning px-3 py-2 text-xs">
+            {{ __('You are in an in-app browser. Open this page in Safari first — installing only works from there.') }}
+        </p>
+        <ol class="mt-3 space-y-3 text-sm text-pine dark:text-mint">
+            <li class="flex gap-3"><span class="font-mono text-moss dark:text-sage">1</span><span>{{ __('Tap the') }} <strong>{{ __('Share') }}</strong> {{ __('button') }}
+                <svg class="inline w-4 h-4 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0-12L8 7m4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
+                {{ __('in the Safari toolbar (bottom on iPhone, top on iPad).') }}</span></li>
+            <li class="flex gap-3"><span class="font-mono text-moss dark:text-sage">2</span><span>{{ __('Scroll down and tap') }} <strong>{{ __('Add to Home Screen') }}</strong>.</span></li>
+            <li class="flex gap-3"><span class="font-mono text-moss dark:text-sage">3</span><span>{{ __('Tap') }} <strong>{{ __('Add') }}</strong>. {{ __('JupyterDocs now opens like an app from your home screen.') }}</span></li>
+        </ol>
+        <button type="button" data-ios-close class="mt-4 w-full rounded-lg bg-moss dark:bg-ember text-jd-bg dark:text-pine py-2.5 text-sm font-display font-semibold active:scale-95 transition">{{ __('Got it') }}</button>
+    </div>
+</div>
+
 <script>
     (function () {
         var root = document.documentElement;
@@ -218,6 +239,35 @@
             .filter(Boolean);
 
         if (! buttons.length) return;
+
+        var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        if (standalone) return;
+
+        var ua = window.navigator.userAgent;
+        // iPadOS 13+ reports itself as a Mac, so also check for touch support.
+        var isIos = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        var inAppBrowser = /FBAN|FBAV|Instagram|Line\/|MicroMessenger|Snapchat|TikTok|GSA\//i.test(ua);
+
+        var sheet = document.getElementById('ios-install-sheet');
+        var inAppNote = document.getElementById('ios-install-inapp');
+
+        function toggleSheet(open) {
+            if (! sheet) return;
+            sheet.hidden = ! open;
+        }
+
+        if (isIos && sheet) {
+            // Safari never fires beforeinstallprompt, so show our own guide.
+            if (inAppNote) inAppNote.hidden = ! inAppBrowser;
+            buttons.forEach(function (btn) {
+                btn.hidden = false;
+                btn.addEventListener('click', function () { toggleSheet(true); });
+            });
+            sheet.addEventListener('click', function (e) {
+                if (e.target === sheet || e.target.closest('[data-ios-close]')) toggleSheet(false);
+            });
+            return;
+        }
 
         window.addEventListener('beforeinstallprompt', function (e) {
             e.preventDefault();

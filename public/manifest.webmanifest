@@ -2,6 +2,7 @@
     "name": "JupyterDocs — Free Lecture Notes & Past Papers",
     "short_name": "JupyterDocs",
     "description": "Search and download student-uploaded lecture notes, past exam papers, and study guides.",
+    "lang": "en",
     "start_url": "/?source=pwa",
     "id": "/?source=pwa",
     "scope": "/",

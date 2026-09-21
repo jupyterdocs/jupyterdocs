@@ -14,13 +14,7 @@
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
         <meta name="description" content="{{ $metaDescription }}">
 
-        <!-- PWA -->
-        <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
-        <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
-        <meta name="theme-color" content="#16352F">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-        <meta name="apple-mobile-web-app-title" content="JupyterDocs">
+        @include('layouts.pwa-head')
         <link rel="canonical" href="{{ url('/') }}">
 
         <meta property="og:type" content="website">

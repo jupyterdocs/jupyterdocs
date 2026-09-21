@@ -1,6 +1,6 @@
 // Bump this on any change to the caching strategy below so old clients
 // pick up the new worker instead of running stale logic forever.
-const CACHE_VERSION = 'jupyterdocs-v1';
+const CACHE_VERSION = 'jupyterdocs-v2';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const OFFLINE_URL = '/offline.html';
 
@@ -31,20 +31,12 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // Page loads: always prefer the network (this is a marketplace with
-    // live, per-user, per-document state — never serve a stale page when
-    // we're online) and only fall back to a cached copy or the offline
-    // page when the network is unreachable.
+    // Page loads always go to the network. HTML is never cached: pages are
+    // per-user (a cached logged-in page could be shown to the next person on
+    // a shared device) and Safari rejects served redirected responses. Only
+    // when the network is unreachable do we show the static offline page.
     if (request.mode === 'navigate') {
-        event.respondWith(
-            fetch(request)
-                .then((response) => {
-                    const clone = response.clone();
-                    caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
-                    return response;
-                })
-                .catch(() => caches.match(request).then((cached) => cached || caches.match(OFFLINE_URL)))
-        );
+        event.respondWith(fetch(request).catch(() => caches.match(OFFLINE_URL)));
         return;
     }
 
