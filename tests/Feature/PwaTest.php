@@ -40,7 +40,7 @@ class PwaTest extends TestCase
     public function test_install_sheet_is_a_closable_dialog_hidden_until_tapped(): void
     {
         $this->get('/browse')->assertOk()
-            ->assertSee('id="ios-install-sheet" hidden role="dialog"', false)
+            ->assertSee('id="ios-install-sheet" hidden style="display:none" role="dialog"', false)
             ->assertSee('data-ios-close', false);
 
         $files = glob(public_path('build/assets/*.css'));

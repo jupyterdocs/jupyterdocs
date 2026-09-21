@@ -1,6 +1,6 @@
 // Bump this on any change to the caching strategy below so old clients
 // pick up the new worker instead of running stale logic forever.
-const CACHE_VERSION = 'jupyterdocs-v2';
+const CACHE_VERSION = 'jupyterdocs-v3';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const OFFLINE_URL = '/offline.html';
 

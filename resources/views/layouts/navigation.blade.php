@@ -187,7 +187,7 @@
 </nav>
 
 <!-- iOS has no install prompt API, so this walks people through Safari's Add to Home Screen. -->
-<div id="ios-install-sheet" hidden role="dialog" aria-modal="true" aria-labelledby="ios-install-title" class="fixed inset-0 z-[90] flex items-end sm:items-center justify-center bg-black/50 p-3 sm:p-4">
+<div id="ios-install-sheet" hidden style="display:none" role="dialog" aria-modal="true" aria-labelledby="ios-install-title" class="fixed inset-0 z-[90] flex items-end sm:items-center justify-center bg-black/50 p-3 sm:p-4">
     <div class="w-full max-w-sm max-h-[85vh] overflow-y-auto overscroll-contain rounded-2xl bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 p-4 sm:p-5 shadow-xl safe-bottom">
         <div class="flex items-start justify-between gap-3">
             <h2 id="ios-install-title" class="font-display font-bold text-base text-pine dark:text-mint">{{ __('Install JupyterDocs') }}</h2>
@@ -254,6 +254,8 @@
         function toggleSheet(open) {
             if (! sheet) return;
             sheet.hidden = ! open;
+            // Inline style so a stale cached stylesheet can never leave it stuck open.
+            sheet.style.display = open ? 'flex' : 'none';
             document.body.style.overflow = open ? 'hidden' : '';
         }
 
