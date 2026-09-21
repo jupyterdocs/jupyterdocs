@@ -66,10 +66,10 @@
                     <div>
                         <div class="flex items-baseline justify-between">
                             <x-input-label for="description" :value="__('Description')" />
-                            <span id="description_count" class="text-xs font-mono text-jd-ink-muted dark:text-sage">0 / 125</span>
+                            <span id="description_count" class="text-xs font-mono text-jd-ink-muted dark:text-sage">0 / 150</span>
                         </div>
-                        <textarea id="description" name="description" rows="5" minlength="125" required class="mt-1 block w-full rounded-lg border-pine/15 dark:border-mint/15 bg-white dark:bg-cypress text-pine dark:text-mint shadow-sm focus:border-moss dark:focus:border-sage focus:ring-moss dark:focus:ring-sage font-display" placeholder="What is this document, which topics does it cover, and who is it useful for? At least 125 characters — this is what helps other students find it.">{{ old('description') }}</textarea>
-                        <p class="mt-1 text-xs text-jd-ink-muted dark:text-sage">{{ __('At least 125 characters. A good description makes this document easy for others to find.') }}</p>
+                        <textarea id="description" name="description" rows="5" minlength="2" maxlength="150" required class="mt-1 block w-full rounded-lg border-pine/15 dark:border-mint/15 bg-white dark:bg-cypress text-pine dark:text-mint shadow-sm focus:border-moss dark:focus:border-sage focus:ring-moss dark:focus:ring-sage font-display" placeholder="What is this document, which topics does it cover, and who is it useful for? Up to 150 characters — this is what helps other students find it.">{{ old('description') }}</textarea>
+                        <p class="mt-1 text-xs text-jd-ink-muted dark:text-sage">{{ __('Up to 150 characters. A short description makes this document easy for others to find.') }}</p>
                         <x-input-error :messages="$errors->get('description')" class="mt-2" />
                     </div>
 
@@ -128,9 +128,7 @@
 
         function updateDescriptionCount() {
             const len = descriptionField.value.length;
-            descriptionCount.textContent = `${len} / 125`;
-            descriptionCount.classList.toggle('text-jd-success', len >= 125);
-            descriptionCount.classList.toggle('dark:text-jd-success', len >= 125);
+            descriptionCount.textContent = `${len} / 150`;
         }
 
         descriptionField?.addEventListener('input', updateDescriptionCount);

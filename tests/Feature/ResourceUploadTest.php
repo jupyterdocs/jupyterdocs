@@ -29,20 +29,25 @@ class ResourceUploadTest extends TestCase
 
         $this->validPayload = [
             'title' => 'Mathematics for IT Professionals',
-            'description' => str_repeat('This textbook covers discrete mathematics and linear algebra for computing students. ', 4),
+            'description' => 'A short poem about what changed after the break up',
             'resource_type_id' => $this->type()->id,
             'confirm_ownership' => '1',
             'file' => UploadedFile::fake()->create('notes.pdf', 500, 'application/pdf'),
         ];
     }
 
-    public function test_description_shorter_than_125_characters_is_rejected(): void
+    public function test_description_outside_2_to_150_characters_is_rejected(): void
     {
         $user = User::factory()->create();
 
         $this->actingAs($user)->post(route('resources.store'), [
             ...$this->validPayload,
-            'description' => 'Too short.',
+            'description' => 'X',
+        ])->assertSessionHasErrors('description');
+
+        $this->actingAs($user)->post(route('resources.store'), [
+            ...$this->validPayload,
+            'description' => str_repeat('a', 151),
         ])->assertSessionHasErrors('description');
 
         $this->assertSame(0, Resource::count());
