@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tailwind display utilities (flex, inline-flex) would otherwise beat the
+   [hidden] attribute and leave "hidden" popups and buttons visible. */
+[hidden] {
+    display: none !important;
+}
+
 /* App-shell feel: no rubber-band scroll, no blue tap flash, icons that
    respect a notch/home-indicator once installed as a standalone PWA. */
 html {

@@ -187,11 +187,11 @@
 </nav>
 
 <!-- iOS has no install prompt API, so this walks people through Safari's Add to Home Screen. -->
-<div id="ios-install-sheet" hidden class="fixed inset-0 z-[90] flex items-end sm:items-center justify-center bg-black/50 p-4">
-    <div class="w-full max-w-sm rounded-2xl bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 p-5 shadow-xl safe-bottom">
+<div id="ios-install-sheet" hidden role="dialog" aria-modal="true" aria-labelledby="ios-install-title" class="fixed inset-0 z-[90] flex items-end sm:items-center justify-center bg-black/50 p-3 sm:p-4">
+    <div class="w-full max-w-sm max-h-[85vh] overflow-y-auto overscroll-contain rounded-2xl bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 p-4 sm:p-5 shadow-xl safe-bottom">
         <div class="flex items-start justify-between gap-3">
-            <h2 class="font-display font-bold text-base text-pine dark:text-mint">{{ __('Install JupyterDocs') }}</h2>
-            <button type="button" data-ios-close aria-label="{{ __('Close') }}" class="text-jd-ink-muted dark:text-sage text-xl leading-none">&times;</button>
+            <h2 id="ios-install-title" class="font-display font-bold text-base text-pine dark:text-mint">{{ __('Install JupyterDocs') }}</h2>
+            <button type="button" data-ios-close aria-label="{{ __('Close') }}" class="shrink-0 -m-2 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-jd-ink-muted dark:text-sage text-2xl leading-none">&times;</button>
         </div>
         <p id="ios-install-inapp" hidden class="mt-3 rounded-lg bg-jd-warning/10 text-jd-warning px-3 py-2 text-xs">
             {{ __('You are in an in-app browser. Open this page in Safari first — installing only works from there.') }}
@@ -254,17 +254,27 @@
         function toggleSheet(open) {
             if (! sheet) return;
             sheet.hidden = ! open;
+            document.body.style.overflow = open ? 'hidden' : '';
+        }
+
+        // Close handlers work on every device: the X, "Got it", a tap on the
+        // dimmed backdrop, or the Escape key.
+        if (sheet) {
+            sheet.addEventListener('click', function (e) {
+                if (e.target === sheet || e.target.closest('[data-ios-close]')) toggleSheet(false);
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') toggleSheet(false);
+            });
         }
 
         if (isIos && sheet) {
-            // Safari never fires beforeinstallprompt, so show our own guide.
+            // Safari never fires beforeinstallprompt, so the Install button
+            // opens our own Add to Home Screen guide — and only on tap.
             if (inAppNote) inAppNote.hidden = ! inAppBrowser;
             buttons.forEach(function (btn) {
                 btn.hidden = false;
                 btn.addEventListener('click', function () { toggleSheet(true); });
-            });
-            sheet.addEventListener('click', function (e) {
-                if (e.target === sheet || e.target.closest('[data-ios-close]')) toggleSheet(false);
             });
             return;
         }
