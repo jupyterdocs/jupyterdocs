@@ -18,7 +18,7 @@ class Resource extends Model
 {
     use HasFactory, SoftDeletes;
 
-    public const MIN_UPLOADS_TO_DOWNLOAD = 2;
+    public const UPLOADS_PER_DOWNLOAD = 2;
 
     protected $fillable = [
         'uploader_id',
@@ -189,7 +189,9 @@ class Resource extends Model
 
         return $user->id === $this->uploader_id
             || $user->isAdmin()
-            || $user->uploads_count >= self::MIN_UPLOADS_TO_DOWNLOAD;
+            || $user->canDownload()
+            // Already paid for once, so fetching it again is free.
+            || $user->downloads()->where('resource_id', $this->id)->exists();
     }
 
     public function isViewableBy(?User $user, ?array $guestUploadIds = null): bool

@@ -52,7 +52,7 @@ class ResourceUploadTest extends TestCase
     {
         $user = User::factory()->create()->refresh();
         $this->assertSame(0, $user->uploads_count);
-        $this->assertFalse($user->canDownload());
+        $this->assertSame(1, $user->downloadsRemaining());
 
         $this->actingAs($user)->post(route('resources.store'), $this->validPayload)
             ->assertRedirect(route('resources.mine'));
@@ -66,7 +66,7 @@ class ResourceUploadTest extends TestCase
         $this->assertSame(1, $user->uploads_count);
         $this->assertSame(0, $user->approved_uploads_count);
         // Still pending admin approval, yet already counts toward the unlock.
-        $this->assertFalse($user->canDownload());
+        $this->assertSame(1, $user->downloadsRemaining());
 
         $this->actingAs($user)->post(route('resources.store'), [
             ...$this->validPayload,
@@ -75,7 +75,7 @@ class ResourceUploadTest extends TestCase
 
         $user->refresh();
         $this->assertSame(2, $user->uploads_count);
-        $this->assertTrue($user->canDownload());
+        $this->assertSame(2, $user->downloadsRemaining());
         $this->assertTrue($resource->fresh()->isDownloadableBy($user));
     }
 }

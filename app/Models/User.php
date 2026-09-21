@@ -14,6 +14,8 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    public const FREE_DOWNLOAD_WELCOME = 'Welcome to JupyterDocs! You have 1 free download. After that, every 2 documents you upload earns you another download.';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -27,6 +29,7 @@ class User extends Authenticatable
         'google_id',
         'deactivated_at',
         'uploads_count',
+        'downloads_used',
     ];
 
     /**
@@ -51,6 +54,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'last_seen_at' => 'datetime',
             'deactivated_at' => 'datetime',
+            'downloads_used' => 'integer',
+            'uploads_count' => 'integer',
         ];
     }
 
@@ -118,13 +123,31 @@ class User extends Authenticatable
         return $hours > 0 ? "{$hours}h {$minutes}m" : "{$minutes}m";
     }
 
+    /** 1 free download, plus 1 for every UPLOADS_PER_DOWNLOAD uploads. */
+    public function downloadAllowance(): int
+    {
+        return 1 + intdiv($this->uploads_count, Resource::UPLOADS_PER_DOWNLOAD);
+    }
+
+    public function downloadsRemaining(): int
+    {
+        return max(0, $this->downloadAllowance() - $this->downloads_used);
+    }
+
+    public function hasFreeDownload(): bool
+    {
+        return $this->downloads_used === 0;
+    }
+
     public function canDownload(): bool
     {
-        return $this->uploads_count >= Resource::MIN_UPLOADS_TO_DOWNLOAD;
+        return $this->downloadsRemaining() > 0;
     }
 
     public function uploadsNeededToUnlockDownloads(): int
     {
-        return max(0, Resource::MIN_UPLOADS_TO_DOWNLOAD - $this->uploads_count);
+        return $this->canDownload()
+            ? 0
+            : $this->downloads_used * Resource::UPLOADS_PER_DOWNLOAD - $this->uploads_count;
     }
 }

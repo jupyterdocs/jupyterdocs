@@ -16,11 +16,12 @@
 
             <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-sm rounded-xl p-4 text-sm text-jd-ink-muted dark:text-sage">
                 {{ __('Uploads:') }} <span class="font-display font-semibold text-pine dark:text-mint">{{ Auth::user()->uploads_count }}</span>
-                @unless (Auth::user()->canDownload())
-                    &mdash; {{ __(':n more to unlock downloads.', ['n' => Auth::user()->uploadsNeededToUnlockDownloads()]) }}
+                @if (Auth::user()->canDownload())
+                    &mdash; <span class="text-jd-success font-medium">{{ trans_choice(':count download available.|:count downloads available.', Auth::user()->downloadsRemaining()) }}</span>
+                    {{ __('Every :n uploads earns another.', ['n' => \App\Models\Resource::UPLOADS_PER_DOWNLOAD]) }}
                 @else
-                    &mdash; <span class="text-jd-success font-medium">{{ __('Downloads unlocked!') }}</span>
-                @endunless
+                    &mdash; {{ __(':n more upload(s) to earn another download.', ['n' => Auth::user()->uploadsNeededToUnlockDownloads()]) }}
+                @endif
             </div>
 
             <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-sm rounded-xl divide-y divide-pine/10 dark:divide-mint/10">

@@ -59,16 +59,25 @@
             </form>
 
             @auth
-                @if (! Auth::user()->canDownload())
+                @if (Auth::user()->canDownload())
+                    <div class="rounded-lg bg-jd-surface-2 dark:bg-cypress border border-moss/20 dark:border-sage/20 text-pine dark:text-mint px-4 py-3 text-sm">
+                        @if (Auth::user()->hasFreeDownload())
+                            {{ __('You have 1 free download available. Every :n documents you upload earns you another.', ['n' => \App\Models\Resource::UPLOADS_PER_DOWNLOAD]) }}
+                        @else
+                            {{ trans_choice('You have :count download available.|You have :count downloads available.', Auth::user()->downloadsRemaining()) }}
+                        @endif
+                    </div>
+                @else
                     <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div class="flex items-center gap-4">
                             <div class="flex gap-2">
-                                @for ($i = 1; $i <= \App\Models\Resource::MIN_UPLOADS_TO_DOWNLOAD; $i++)
-                                    <span class="w-3.5 h-3.5 rounded-full border-2 border-moss dark:border-sage {{ $i <= Auth::user()->uploads_count ? 'bg-moss dark:bg-sage' : '' }}"></span>
+                                @php $progress = Auth::user()->uploads_count - Auth::user()->downloads_used * \App\Models\Resource::UPLOADS_PER_DOWNLOAD; @endphp
+                                @for ($i = 1; $i <= \App\Models\Resource::UPLOADS_PER_DOWNLOAD; $i++)
+                                    <span class="w-3.5 h-3.5 rounded-full border-2 border-moss dark:border-sage {{ $i <= $progress ? 'bg-moss dark:bg-sage' : '' }}"></span>
                                 @endfor
                             </div>
                             <p class="text-sm text-jd-ink-muted dark:text-sage">
-                                {{ __('Upload :n more document(s) to unlock downloads — no admin approval needed.', ['n' => Auth::user()->uploadsNeededToUnlockDownloads()]) }}
+                                {{ __('You have no downloads left. Upload :n more document(s) to earn another — no admin approval needed.', ['n' => Auth::user()->uploadsNeededToUnlockDownloads()]) }}
                             </p>
                         </div>
                         <a href="{{ route('resources.create') }}" class="text-sm font-display font-semibold text-moss dark:text-sage hover:text-cypress dark:hover:text-mint shrink-0">{{ __('Upload now →') }}</a>

@@ -12,7 +12,7 @@
                 @auth
                     @if (! Auth::user()->canDownload())
                         <div class="mb-4 rounded-lg bg-jd-surface-2 dark:bg-cypress border border-moss/20 dark:border-sage/20 text-pine dark:text-mint px-4 py-2 text-sm">
-                            {{ __('This upload counts toward unlocking downloads right away — no admin approval needed. You need :n more.', ['n' => Auth::user()->uploadsNeededToUnlockDownloads()]) }}
+                            {{ __('Every 2 uploads earns you a download, and uploads count right away — no admin approval needed. You need :n more.', ['n' => Auth::user()->uploadsNeededToUnlockDownloads()]) }}
                         </div>
                     @endif
                 @else
