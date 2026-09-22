@@ -44,6 +44,13 @@ class InstallLocalConversionWorker extends Command
         $vbsPath = storage_path('app/local-conversion-worker.vbs');
         $command = escapeshellarg(PHP_BINARY).' '.escapeshellarg(base_path('artisan')).' conversion:work-local';
 
+        // Baked into the scheduled task so it keeps using the same
+        // environment (e.g. --env=production, to reach the real database)
+        // on every future login, without retyping it.
+        if ($env = $this->option('env')) {
+            $command .= ' --env='.escapeshellarg($env);
+        }
+
         // wscript + a "run hidden" VBScript wrapper is the standard trick
         // for launching a console command from Task Scheduler with no
         // window flashing on screen.

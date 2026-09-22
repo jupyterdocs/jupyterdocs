@@ -33,6 +33,25 @@ class WorkLocalConversionQueue extends Command
         }
 
         $this->components->info('Found LibreOffice at: '.$driver->binary());
+
+        // Easy to point this at the wrong database by mistake (the default
+        // .env is local dev, not production) — say plainly what it's
+        // actually connected to before it starts touching anything.
+        try {
+            $database = config('database.connections.'.config('database.default').'.database');
+            $host = config('database.connections.'.config('database.default').'.host');
+            $this->components->info("Connected to database \"{$database}\" on {$host} (environment: ".app()->environment().').');
+        } catch (\Throwable) {
+            // Non-essential diagnostic — never block the worker over it.
+        }
+
+        if (! app()->environment('production')) {
+            $this->components->warn(
+                'This is NOT running against production — pass --env=production '.
+                '(after setting up .env.production) if you meant to convert the live site\'s backlog.'
+            );
+        }
+
         $this->components->info('Watching the local conversion queue. Leave this window open — press Ctrl+C to stop.');
 
         // The Looping event fires at the top of every polling cycle, even

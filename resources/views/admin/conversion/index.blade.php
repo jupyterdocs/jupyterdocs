@@ -26,18 +26,21 @@
                 </div>
 
                 <div id="conversion-setup-box" hidden class="text-xs text-jd-ink-muted dark:text-sage space-y-3">
+                    <div class="rounded-lg bg-jd-warning/10 text-jd-warning px-3 py-2">
+                        {{ __('One-time setup needed first: this only works once ') }}<code class="font-mono">.env.production</code>{{ __(' exists with real production database/storage credentials — see ') }}<code class="font-mono">.env.production.example</code>{{ __(' in the project for the exact steps. Without it, the worker reads your local dev database instead of the live site.') }}
+                    </div>
                     <div>
-                        <p>{{ __('Run this in a terminal on this device to start converting:') }}</p>
+                        <p>{{ __('Open a terminal, cd into the jupyterdocs project folder, then run:') }}</p>
                         <div class="flex items-center gap-2 mt-1">
-                            <code class="flex-1 text-xs font-mono px-3 py-2 rounded-lg bg-jd-surface-2 dark:bg-cypress text-pine dark:text-mint overflow-x-auto">php artisan conversion:work-local</code>
-                            <button type="button" data-copy="php artisan conversion:work-local" class="conversion-copy shrink-0 font-display font-semibold text-xs px-3 py-2 rounded-lg bg-jd-surface-2 dark:bg-cypress text-jd-ink-muted dark:text-sage hover:opacity-90">{{ __('Copy') }}</button>
+                            <code class="flex-1 text-xs font-mono px-3 py-2 rounded-lg bg-jd-surface-2 dark:bg-cypress text-pine dark:text-mint overflow-x-auto">php artisan conversion:work-local --env=production</code>
+                            <button type="button" data-copy="php artisan conversion:work-local --env=production" class="conversion-copy shrink-0 font-display font-semibold text-xs px-3 py-2 rounded-lg bg-jd-surface-2 dark:bg-cypress text-jd-ink-muted dark:text-sage hover:opacity-90">{{ __('Copy') }}</button>
                         </div>
                     </div>
                     <div>
                         <p>{{ __('Or run this once and it starts automatically every time you log in — no more commands after that:') }}</p>
                         <div class="flex items-center gap-2 mt-1">
-                            <code class="flex-1 text-xs font-mono px-3 py-2 rounded-lg bg-jd-surface-2 dark:bg-cypress text-pine dark:text-mint overflow-x-auto">php artisan conversion:install-local-worker</code>
-                            <button type="button" data-copy="php artisan conversion:install-local-worker" class="conversion-copy shrink-0 font-display font-semibold text-xs px-3 py-2 rounded-lg bg-jd-surface-2 dark:bg-cypress text-jd-ink-muted dark:text-sage hover:opacity-90">{{ __('Copy') }}</button>
+                            <code class="flex-1 text-xs font-mono px-3 py-2 rounded-lg bg-jd-surface-2 dark:bg-cypress text-pine dark:text-mint overflow-x-auto">php artisan conversion:install-local-worker --env=production</code>
+                            <button type="button" data-copy="php artisan conversion:install-local-worker --env=production" class="conversion-copy shrink-0 font-display font-semibold text-xs px-3 py-2 rounded-lg bg-jd-surface-2 dark:bg-cypress text-jd-ink-muted dark:text-sage hover:opacity-90">{{ __('Copy') }}</button>
                         </div>
                         <p class="mt-1">{{ __('Windows only for now. To undo it later: php artisan conversion:uninstall-local-worker') }}</p>
                     </div>
