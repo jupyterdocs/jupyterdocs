@@ -14,6 +14,10 @@ trait AppliesConversionResult
 {
     protected function applyResult(Resource $resource, ConversionResult $result): void
     {
+        // queued_for_local_conversion is deliberately left as-is here: the
+        // dashboard keeps showing a finished document's outcome (done or
+        // failed) until the admin starts another batch, instead of it
+        // disappearing from the list the instant it completes.
         if (! $result->success) {
             $resource->conversion_status = 'failed';
             $resource->conversion_error = $result->errorMessage;

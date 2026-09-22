@@ -42,6 +42,7 @@ class Resource extends Model
 
     protected $casts = [
         'approved_at' => 'datetime',
+        'queued_for_local_conversion' => 'boolean',
     ];
 
     public function uploader(): BelongsTo
