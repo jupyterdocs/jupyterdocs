@@ -90,6 +90,8 @@
             <main>
                 {{ $slot }}
             </main>
+
+            <x-site-footer />
         </div>
 
         @include('layouts.bottom-nav')
