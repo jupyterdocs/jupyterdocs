@@ -26,4 +26,17 @@ return [
         'timeout' => (int) env('GOTENBERG_TIMEOUT', 60),
     ],
 
+    // Edge computing: an admin's own machine converts the backlog using a
+    // local LibreOffice install, via `php artisan conversion:work-local`.
+    // Never used by the production server itself.
+    'local' => [
+        // Absolute path to soffice/soffice.exe. Leave unset to let
+        // LocalCliDriver search common install locations and PATH.
+        'soffice_binary' => env('LOCAL_SOFFICE_BINARY'),
+        'timeout' => (int) env('LOCAL_CONVERSION_TIMEOUT', 120),
+        'queue' => env('LOCAL_CONVERSION_QUEUE', 'local-conversion'),
+        // How long the dashboard treats the last heartbeat as "still connected".
+        'heartbeat_ttl' => (int) env('LOCAL_CONVERSION_HEARTBEAT_TTL', 20),
+    ],
+
 ];

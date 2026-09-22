@@ -10,6 +10,44 @@
 
             <x-admin.subnav />
 
+            @if ($stats['needs_conversion'] > 0)
+                <div id="local-conversion-prompt" class="bg-white dark:bg-pine border border-jd-warning/30 shadow-sm rounded-xl p-4" data-needs-conversion="{{ $stats['needs_conversion'] }}">
+                    <div id="local-conversion-ask" class="flex items-center justify-between gap-4 flex-wrap">
+                        <div>
+                            <p class="font-display font-semibold text-pine dark:text-mint">
+                                {{ trans_choice(':count document needs PDF conversion.|:count documents need PDF conversion.', $stats['needs_conversion']) }}
+                            </p>
+                            <p class="text-xs text-jd-ink-muted dark:text-sage mt-0.5">
+                                {{ __('Convert them now using this device\'s CPU instead of waiting on the remote queue?') }}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button type="button" id="local-conversion-yes" class="font-display font-semibold text-xs px-3 py-2 rounded-lg bg-jd-warning text-white hover:opacity-90">
+                                {{ __('Use this device') }}
+                            </button>
+                            <button type="button" id="local-conversion-no" class="font-display font-semibold text-xs px-3 py-2 rounded-lg bg-jd-surface-2 dark:bg-cypress text-jd-ink-muted dark:text-sage hover:opacity-90">
+                                {{ __('Not now') }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="local-conversion-started" hidden class="space-y-2">
+                        <p class="text-sm text-pine dark:text-mint">
+                            <span id="local-conversion-queued-count"></span> {{ __('queued. Run this on this computer to start converting:') }}
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <code id="local-conversion-command" class="flex-1 text-xs font-mono px-3 py-2 rounded-lg bg-jd-surface-2 dark:bg-cypress text-pine dark:text-mint overflow-x-auto">php artisan conversion:work-local</code>
+                            <button type="button" id="local-conversion-copy" class="shrink-0 font-display font-semibold text-xs px-3 py-2 rounded-lg bg-jd-surface-2 dark:bg-cypress text-jd-ink-muted dark:text-sage hover:opacity-90">
+                                {{ __('Copy') }}
+                            </button>
+                        </div>
+                        <p id="local-conversion-status" class="text-xs text-jd-ink-muted dark:text-sage">
+                            {{ __('Waiting for that command to run on this device…') }}
+                        </p>
+                    </div>
+                </div>
+            @endif
+
             {{-- Key stats --}}
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 <x-admin.stat-card label="Total Users" :value="$stats['total_users']" />
@@ -92,4 +130,72 @@
             @endif
         </div>
     </div>
+
+    @if ($stats['needs_conversion'] > 0)
+        <script>
+            (function () {
+                var prompt = document.getElementById('local-conversion-prompt');
+                if (! prompt) return;
+
+                // Don't nag again this browser session once dismissed or started.
+                var dismissed = sessionStorage.getItem('jd-local-conversion-dismissed');
+                if (dismissed) { prompt.hidden = true; return; }
+
+                var ask = document.getElementById('local-conversion-ask');
+                var started = document.getElementById('local-conversion-started');
+                var csrf = document.querySelector('meta[name="csrf-token"]').content;
+                var pollTimer = null;
+
+                document.getElementById('local-conversion-no').addEventListener('click', function () {
+                    sessionStorage.setItem('jd-local-conversion-dismissed', '1');
+                    prompt.hidden = true;
+                });
+
+                document.getElementById('local-conversion-yes').addEventListener('click', function (e) {
+                    e.target.disabled = true;
+
+                    fetch('{{ route('admin.conversion.start-local') }}', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+                    })
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
+                            ask.hidden = true;
+                            started.hidden = false;
+                            document.getElementById('local-conversion-queued-count').textContent =
+                                data.queued + (data.queued === 1 ? ' document' : ' documents');
+                            document.getElementById('local-conversion-command').textContent = data.command;
+                            poll();
+                            pollTimer = setInterval(poll, 5000);
+                        });
+                });
+
+                document.getElementById('local-conversion-copy').addEventListener('click', function () {
+                    var text = document.getElementById('local-conversion-command').textContent;
+                    navigator.clipboard && navigator.clipboard.writeText(text);
+                });
+
+                function poll() {
+                    fetch('{{ route('admin.conversion.status') }}', { headers: { 'Accept': 'application/json' } })
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
+                            var status = document.getElementById('local-conversion-status');
+
+                            if (! data.worker_connected) {
+                                status.textContent = 'Waiting for that command to run on this device…';
+                                return;
+                            }
+
+                            if (data.needs_conversion === 0 && data.converting === 0) {
+                                status.textContent = 'All done — the backlog is converted.';
+                                clearInterval(pollTimer);
+                                return;
+                            }
+
+                            status.textContent = 'Connected — converting on this device (' + data.needs_conversion + ' left to start, ' + data.converting + ' in progress)…';
+                        });
+                }
+            })();
+        </script>
+    @endif
 </x-app-layout>

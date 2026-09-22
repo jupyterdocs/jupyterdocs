@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ContentController;
+use App\Http\Controllers\Admin\ConversionController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\ReportController;
@@ -70,6 +71,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
 
         Route::get('/content', [ContentController::class, 'index'])->name('content.index');
+
+        Route::get('/conversion/status', [ConversionController::class, 'status'])->name('conversion.status');
+        Route::post('/conversion/start-local', [ConversionController::class, 'startLocal'])->name('conversion.start-local');
 
         Route::delete('/resources/{resource}', [ResourceController::class, 'destroy'])->name('resources.destroy');
 
