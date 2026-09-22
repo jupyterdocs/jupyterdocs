@@ -42,6 +42,7 @@ class Resource extends Model
 
     protected $casts = [
         'approved_at' => 'datetime',
+        'converted_at' => 'datetime',
         'queued_for_local_conversion' => 'boolean',
     ];
 
@@ -53,6 +54,12 @@ class Resource extends Model
     public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    // The admin who queued this document for local conversion, if any.
+    public function queuedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'queued_by');
     }
 
     public function resourceType(): BelongsTo

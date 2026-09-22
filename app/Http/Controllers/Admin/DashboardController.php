@@ -7,8 +7,6 @@ use App\Models\Download;
 use App\Models\Resource;
 use App\Models\User;
 use App\Models\UserActivityLog;
-use App\Support\Conversion\LocalConversionBatch;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -57,15 +55,6 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Server-side truth for the "convert on this device" panel, so it
-        // renders correctly on first load — a reload or a tab switch never
-        // loses the running batch or its command the way client-only state
-        // tracked purely in JS would.
-        $localBatch = LocalConversionBatch::current();
-        $localWorkerConnected = Cache::has('conversion:local-worker:heartbeat');
-
-        return view('admin.dashboard', compact(
-            'stats', 'recentUsers', 'recentUploads', 'failedConversions', 'localBatch', 'localWorkerConnected'
-        ));
+        return view('admin.dashboard', compact('stats', 'recentUsers', 'recentUploads', 'failedConversions'));
     }
 }

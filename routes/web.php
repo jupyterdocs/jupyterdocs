@@ -66,6 +66,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/content', [ContentController::class, 'index'])->name('content.index');
 
+        Route::get('/conversion', [ConversionController::class, 'index'])->name('conversion.index');
         Route::get('/conversion/status', [ConversionController::class, 'status'])->name('conversion.status');
         Route::post('/conversion/start-local', [ConversionController::class, 'startLocal'])->name('conversion.start-local');
 
