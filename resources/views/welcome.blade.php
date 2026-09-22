@@ -203,15 +203,7 @@
             </section>
         </main>
 
-        <footer class="px-5 py-9 border-t border-pine/10 dark:border-mint/10">
-            <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
-                <div class="flex items-center gap-2 font-bold text-sm">
-                    <svg class="w-5 h-5" viewBox="0 0 640 640"><use href="#jupyterMark"/></svg>
-                    Jupyter<span class="opacity-60">Docs</span>
-                </div>
-                <span class="font-serif italic text-sm text-jd-ink-muted dark:text-sage">Notes orbit. Knowledge compounds.</span>
-            </div>
-        </footer>
+        <x-site-footer />
 
         @include('layouts.bottom-nav')
     </body>

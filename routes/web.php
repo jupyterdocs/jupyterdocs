@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DownloadController;
+use App\Http\Controllers\LegalController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\ResourceInteractionController;
@@ -26,6 +27,11 @@ Route::get('/', function () {
 Route::get('/browse', [ResourceController::class, 'index'])->name('resources.index');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+Route::get('/terms', [LegalController::class, 'terms'])->name('terms');
+Route::get('/privacy', [LegalController::class, 'privacy'])->name('privacy');
+Route::get('/copyright', [LegalController::class, 'copyright'])->name('copyright');
+Route::get('/contact', [LegalController::class, 'contact'])->name('contact');
 
 // Admins land on the moderation queue; everyone else lands on the archive.
 Route::get('/dashboard', function () {

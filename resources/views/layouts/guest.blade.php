@@ -69,6 +69,8 @@
 
                 <p class="mt-6 text-xs text-jd-ink-muted dark:text-sage font-mono">Academic resource marketplace</p>
             </div>
+
+            <x-site-footer compact />
         </div>
 
         <script>
