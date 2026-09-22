@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\ConvertResourceToPdf;
 use App\Models\Resource;
 use App\Models\ResourceType;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -82,5 +84,35 @@ class ResourceUploadTest extends TestCase
         $this->assertSame(2, $user->uploads_count);
         $this->assertSame(2, $user->downloadsRemaining());
         $this->assertTrue($resource->fresh()->isDownloadableBy($user));
+    }
+
+    /**
+     * A filename like "Report.DOCX" left the format column as "DOCX" —
+     * every format check in the app compares against lowercase, so an
+     * uppercase extension silently skipped auto-conversion (and, for a
+     * "PDF" upload, wrongly showed up in the conversion backlog).
+     */
+    public function test_uploaded_file_extension_is_normalized_to_lowercase(): void
+    {
+        Queue::fake();
+
+        $user = User::factory()->create();
+
+        // A minimal valid (empty) ZIP: docx/pptx/xlsx uploads are inspected
+        // with ZipArchive before storing, which needs real zip bytes to
+        // open cleanly rather than arbitrary garbage.
+        $emptyZip = "PK\x05\x06".str_repeat("\x00", 18);
+
+        $this->actingAs($user)->post(route('resources.store'), [
+            ...$this->validPayload,
+            'file' => UploadedFile::fake()->createWithContent('Report.DOCX', $emptyZip),
+        ])->assertRedirect(route('resources.mine'));
+
+        $resource = Resource::firstOrFail();
+        $this->assertSame('docx', $resource->format);
+
+        // Lowercased correctly, it's now recognised as convertible and
+        // gets dispatched immediately — not silently skipped.
+        Queue::assertPushed(ConvertResourceToPdf::class);
     }
 }

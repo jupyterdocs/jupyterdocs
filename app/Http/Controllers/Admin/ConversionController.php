@@ -20,10 +20,19 @@ class ConversionController extends Controller
      */
     public function index()
     {
-        $processing = Resource::where('conversion_status', 'processing')
+        // This device's own batch (whatever its status — including a
+        // document that's still just sitting in the local queue waiting
+        // for a worker), plus anything the remote pipeline is actively on.
+        $localBatch = Resource::where('queued_for_local_conversion', true)
+            ->whereIn('conversion_status', ['pending', 'processing', 'failed'])
             ->with('queuedBy')
             ->orderBy('updated_at')
-            ->get(['id', 'title', 'format', 'queued_for_local_conversion', 'queued_by', 'updated_at']);
+            ->get(['id', 'title', 'format', 'conversion_status', 'conversion_error', 'queued_by', 'updated_at']);
+
+        $remoteProcessing = Resource::where('conversion_status', 'processing')
+            ->where('queued_for_local_conversion', false)
+            ->orderBy('updated_at')
+            ->get(['id', 'title', 'format', 'updated_at']);
 
         $backlog = $this->backlog()
             ->with('uploader')
@@ -36,7 +45,8 @@ class ConversionController extends Controller
             ->paginate(15, ['*'], 'converted_page');
 
         return view('admin.conversion.index', [
-            'processing' => $processing,
+            'localBatch' => $localBatch,
+            'remoteProcessing' => $remoteProcessing,
             'backlog' => $backlog,
             'recentlyConverted' => $recentlyConverted,
             'localWorkerConnected' => Cache::has('conversion:local-worker:heartbeat'),
@@ -44,8 +54,8 @@ class ConversionController extends Controller
     }
 
     /**
-     * Polled by the conversion module (and the dashboard's slim summary)
-     * to keep the "processing" and "waiting" lists live without a reload.
+     * Polled by the conversion module to keep the live sections fresh
+     * without a reload.
      */
     public function status(): JsonResponse
     {
@@ -70,10 +80,11 @@ class ConversionController extends Controller
      */
     public function startLocal(Request $request): JsonResponse
     {
-        // Drop finished documents from an earlier batch so the list doesn't
-        // grow forever; anything still failed gets swept back in below.
+        // Drop documents that finished (either way) in an earlier batch so
+        // the list doesn't grow forever; anything still failed is eligible
+        // to be picked again via the backlog query below.
         Resource::where('queued_for_local_conversion', true)
-            ->where('conversion_status', 'done')
+            ->whereIn('conversion_status', ['done', 'failed'])
             ->update(['queued_for_local_conversion' => false]);
 
         $selectedIds = collect($request->input('resource_ids', []))
@@ -106,9 +117,17 @@ class ConversionController extends Controller
         ]);
     }
 
+    /**
+     * Everything that still needs converting and isn't already claimed by
+     * this device's current batch: never-attempted documents, documents a
+     * previous attempt failed on, and documents sitting in the remote
+     * queue that haven't started yet (e.g. because the remote pipeline is
+     * backed up) — all of those are "waiting", not just 'none'/'failed'.
+     */
     private function backlog()
     {
         return Resource::where('format', '!=', 'pdf')
-            ->whereIn('conversion_status', ['none', 'failed']);
+            ->where('queued_for_local_conversion', false)
+            ->whereIn('conversion_status', ['none', 'pending', 'failed']);
     }
 }

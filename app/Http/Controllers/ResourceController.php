@@ -140,7 +140,10 @@ class ResourceController extends Controller
         $validated = $request->validated();
 
         $file = $request->file('file');
-        $format = $file->getClientOriginalExtension();
+        // Every format check across the app (conversion eligibility, PDF
+        // exclusions, viewer logic) assumes lowercase — an upload like
+        // "Report.PDF" would otherwise slip past all of them as "PDF".
+        $format = strtolower($file->getClientOriginalExtension());
 
         $thumbnailPath = ThumbnailStorage::storeFromDataUrl($validated['thumbnail_data'] ?? null);
         $pages = $validated['pages'] ?? null;

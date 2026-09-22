@@ -133,13 +133,17 @@ class LocalConversionTest extends TestCase
         $this->assertSame([$second->id, $first->id], $dispatchedIds->all());
     }
 
-    public function test_starting_a_new_batch_drops_previously_finished_documents_from_the_list(): void
+    public function test_starting_a_new_batch_drops_previously_finished_or_failed_documents_from_the_list(): void
     {
         Queue::fake();
 
-        $finishedEarlier = $this->resource('done');
-        $finishedEarlier->queued_for_local_conversion = true;
-        $finishedEarlier->save();
+        $doneEarlier = $this->resource('done');
+        $doneEarlier->queued_for_local_conversion = true;
+        $doneEarlier->save();
+
+        $failedEarlier = $this->resource('failed');
+        $failedEarlier->queued_for_local_conversion = true;
+        $failedEarlier->save();
 
         $newBacklog = $this->resource('none');
 
@@ -147,13 +151,59 @@ class LocalConversionTest extends TestCase
             ->post(route('admin.conversion.start-local'))
             ->assertOk();
 
-        $this->assertFalse($finishedEarlier->fresh()->queued_for_local_conversion);
-        $this->assertSame([$newBacklog->id], array_column($response->json('batch'), 'id'));
+        $this->assertFalse($doneEarlier->fresh()->queued_for_local_conversion);
+
+        // Once cleared, a previously-failed document is fair game again —
+        // it gets swept back into this new batch (and re-flagged true).
+        $this->assertTrue($failedEarlier->fresh()->queued_for_local_conversion);
+        $batchIds = array_column($response->json('batch'), 'id');
+        $this->assertContains($newBacklog->id, $batchIds);
+        $this->assertContains($failedEarlier->id, $batchIds);
+    }
+
+    /**
+     * This is the reported bug: the module said "nothing is waiting" while
+     * the content analytics page showed a long list of "Pending" documents.
+     * Those were dispatched to the remote pipeline but never picked up
+     * (e.g. no worker consistently running) — they are waiting too, not
+     * just 'none'/'failed' ones, and must count and be selectable.
+     */
+    public function test_documents_stuck_pending_in_the_remote_queue_count_as_waiting(): void
+    {
+        $stuckRemote = $this->resource('pending');
+
+        $this->actingAs($this->admin())
+            ->getJson(route('admin.conversion.status'))
+            ->assertOk()
+            ->assertJson(['needs_conversion' => 1]);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.conversion.index'))
+            ->assertOk()
+            ->assertDontSee('Nothing is waiting.')
+            ->assertSee($stuckRemote->title)
+            ->assertSee('stuck in the remote queue');
+    }
+
+    public function test_a_document_already_claimed_by_the_current_local_batch_does_not_also_appear_as_waiting(): void
+    {
+        $inBatch = $this->resource('pending');
+        $inBatch->queued_for_local_conversion = true;
+        $inBatch->save();
+
+        $this->actingAs($this->admin())
+            ->getJson(route('admin.conversion.status'))
+            ->assertOk()
+            ->assertJson(['needs_conversion' => 0]);
     }
 
     public function test_status_endpoint_reports_worker_heartbeat_backlog_size_and_batch(): void
     {
+        // Not in the current local batch, so it counts as backlog.
         $this->resource('none');
+
+        // Already claimed by the local batch — counted in "batch", not
+        // double-counted as backlog too.
         $inBatch = $this->resource('failed');
         $inBatch->queued_for_local_conversion = true;
         $inBatch->save();
@@ -161,7 +211,7 @@ class LocalConversionTest extends TestCase
         $this->actingAs($this->admin())
             ->getJson(route('admin.conversion.status'))
             ->assertOk()
-            ->assertJson(['worker_connected' => false, 'needs_conversion' => 2])
+            ->assertJson(['worker_connected' => false, 'needs_conversion' => 1])
             ->assertJsonCount(1, 'batch')
             ->assertJsonPath('batch.0.id', $inBatch->id)
             ->assertJsonPath('batch.0.status', 'failed');

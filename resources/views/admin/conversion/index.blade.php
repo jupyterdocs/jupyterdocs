@@ -50,24 +50,47 @@
                     <h3 class="font-display font-semibold text-pine dark:text-mint">{{ __('Converting now') }}</h3>
                 </div>
                 <ul class="divide-y divide-pine/10 dark:divide-mint/10">
-                    @forelse ($processing as $resource)
+                    @forelse ($localBatch as $resource)
                         <li class="p-4 flex items-center justify-between gap-4">
                             <div class="min-w-0">
                                 <div class="font-display font-medium text-pine dark:text-mint truncate">{{ $resource->title }}</div>
                                 <div class="text-xs text-jd-ink-muted dark:text-sage">
-                                    @if ($resource->queued_for_local_conversion)
-                                        {{ __('This device') }}@if ($resource->queuedBy) &middot; {{ $resource->queuedBy->name }} @endif
+                                    {{ __('This device') }}@if ($resource->queuedBy) &middot; {{ $resource->queuedBy->name }} @endif
+                                    &middot;
+                                    @if ($resource->conversion_status === 'pending')
+                                        {{ __('waiting for a worker') }}
+                                    @elseif ($resource->conversion_status === 'failed')
+                                        {{ __('failed') }}
                                     @else
-                                        {{ __('Remote pipeline (CloudConvert/Gotenberg)') }}
+                                        {{ __('converting…') }}
                                     @endif
                                     &middot; {{ $resource->updated_at->diffForHumans() }}
+                                </div>
+                                @if ($resource->conversion_status === 'failed' && $resource->conversion_error)
+                                    <div class="text-xs text-jd-danger mt-0.5">{{ Str::limit($resource->conversion_error, 100) }}</div>
+                                @endif
+                            </div>
+                            <span class="shrink-0 text-[10px] font-mono font-bold uppercase text-jd-ink-muted dark:text-sage">{{ $resource->format }}</span>
+                        </li>
+                    @empty
+                    @endforelse
+
+                    @forelse ($remoteProcessing as $resource)
+                        <li class="p-4 flex items-center justify-between gap-4">
+                            <div class="min-w-0">
+                                <div class="font-display font-medium text-pine dark:text-mint truncate">{{ $resource->title }}</div>
+                                <div class="text-xs text-jd-ink-muted dark:text-sage">
+                                    {{ __('Remote pipeline (CloudConvert/Gotenberg)') }} &middot; {{ $resource->updated_at->diffForHumans() }}
                                 </div>
                             </div>
                             <span class="shrink-0 text-[10px] font-mono font-bold uppercase text-jd-ink-muted dark:text-sage">{{ $resource->format }}</span>
                         </li>
                     @empty
-                        <li class="p-4 text-jd-ink-muted dark:text-sage">{{ __('Nothing is converting right now.') }}</li>
                     @endforelse
+
+                    @if ($localBatch->isEmpty() && $remoteProcessing->isEmpty())
+                        <li class="p-4 text-jd-ink-muted dark:text-sage">{{ __('Nothing is converting right now.') }}</li>
+                    @endif
                 </ul>
             </div>
 
@@ -98,6 +121,9 @@
                                 <div class="font-display font-medium text-pine dark:text-mint truncate">{{ $resource->title }}</div>
                                 <div class="text-xs text-jd-ink-muted dark:text-sage">
                                     {{ $resource->uploaderDisplayName() }} &middot; {{ $resource->created_at->diffForHumans() }}
+                                    @if ($resource->conversion_status === 'pending')
+                                        &middot; {{ __('stuck in the remote queue') }}
+                                    @endif
                                 </div>
                                 @if ($resource->conversion_status === 'failed' && $resource->conversion_error)
                                     <div class="text-xs text-jd-danger mt-0.5">{{ Str::limit($resource->conversion_error, 100) }}</div>
@@ -106,8 +132,15 @@
                             <span @class([
                                 'shrink-0 text-xs font-display font-semibold px-2.5 py-1 rounded-full',
                                 'bg-jd-danger/10 text-jd-danger' => $resource->conversion_status === 'failed',
+                                'bg-jd-warning/10 text-jd-warning' => $resource->conversion_status === 'pending',
                                 'bg-jd-surface-2 dark:bg-cypress text-jd-ink-muted dark:text-sage' => $resource->conversion_status === 'none',
-                            ])>{{ $resource->conversion_status === 'failed' ? __('Failed') : strtoupper($resource->format) }}</span>
+                            ])>
+                                @switch ($resource->conversion_status)
+                                    @case ('failed') {{ __('Failed') }} @break
+                                    @case ('pending') {{ __('Pending') }} @break
+                                    @default {{ strtoupper($resource->format) }}
+                                @endswitch
+                            </span>
                         </li>
                     @empty
                         <li class="p-4 text-jd-ink-muted dark:text-sage">{{ __('Nothing is waiting.') }}</li>
@@ -221,7 +254,7 @@
                 });
             }
 
-            @if ($processing->isNotEmpty())
+            @if ($localBatch->isNotEmpty() || $remoteProcessing->isNotEmpty())
                 // Something is actively converting — keep the page fresh so
                 // progress shows up without the admin having to reload by hand.
                 setInterval(function () { location.reload(); }, 8000);
