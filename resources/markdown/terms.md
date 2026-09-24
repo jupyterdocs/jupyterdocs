@@ -25,7 +25,7 @@ When you upload a document to JupyterDocs, you confirm that:
 
 You retain ownership of what you upload. By uploading, you grant JupyterDocs a worldwide, non-exclusive, royalty-free license to host, store, reproduce, display, convert (e.g., to PDF for the in-browser preview), and make your content available to other users through the Service, for as long as it stays on the platform.
 
-Every upload is reviewed by an administrator before it becomes publicly visible or searchable. We may reject, edit the listing for, or remove any upload at our discretion — including in response to a report (Section 6). Accepted formats are PDF, Word, PowerPoint, Excel, and plain text, up to 20MB per file.
+Every upload is reviewed by an administrator before it becomes publicly visible or searchable. We may reject, edit the listing for, or remove any upload at our discretion — including in response to a report (Section 6). Accepted formats are PDF, Word, PowerPoint, Excel, and plain text, up to 55MB per file.
 
 ## 4. Downloading content
 
