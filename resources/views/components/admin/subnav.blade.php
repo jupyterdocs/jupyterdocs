@@ -3,6 +3,7 @@
         ['route' => 'admin.dashboard', 'pattern' => 'admin.dashboard', 'label' => __('Overview')],
         ['route' => 'admin.users.index', 'pattern' => 'admin.users.*', 'label' => __('Users')],
         ['route' => 'admin.content.index', 'pattern' => 'admin.content.*', 'label' => __('Library Analytics')],
+        ['route' => 'admin.traffic.index', 'pattern' => 'admin.traffic.*', 'label' => __('Traffic')],
         ['route' => 'admin.conversion.index', 'pattern' => 'admin.conversion.*', 'label' => __('Conversion')],
         ['route' => 'admin.moderation.index', 'pattern' => 'admin.moderation.*', 'label' => __('Moderation')],
         ['route' => 'admin.reports.index', 'pattern' => 'admin.reports.*', 'label' => __('Reports')],

@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('web', [
             \App\Http\Middleware\EnsureUserIsActive::class,
             \App\Http\Middleware\TrackUserActivity::class,
+            \App\Http\Middleware\RecordPageVisit::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

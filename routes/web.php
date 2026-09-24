@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ConversionController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\TrafficController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\LegalController;
@@ -73,6 +74,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
 
         Route::get('/content', [ContentController::class, 'index'])->name('content.index');
+        Route::get('/traffic', [TrafficController::class, 'index'])->name('traffic.index');
 
         Route::get('/conversion', [ConversionController::class, 'index'])->name('conversion.index');
         Route::get('/conversion/status', [ConversionController::class, 'status'])->name('conversion.status');
