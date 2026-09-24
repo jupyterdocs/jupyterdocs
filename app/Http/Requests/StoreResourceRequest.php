@@ -19,7 +19,7 @@ class StoreResourceRequest extends FormRequest
             'resource_type_id' => ['required', 'exists:resource_types,id'],
             'university' => ['nullable', 'string', 'max:255'],
             'course' => ['nullable', 'string', 'max:255'],
-            'file' => ['required', 'file', 'max:20480', 'mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,txt'],
+            'file' => ['required', 'file', 'max:56320', 'mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,txt'],
             'confirm_ownership' => ['accepted'],
             'uploader_name' => [$this->user() ? 'nullable' : 'required', 'string', 'max:255'],
             'uploader_email' => ['nullable', 'email', 'max:255'],

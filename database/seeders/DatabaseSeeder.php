@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
         'Tutorial',
         'Lab Manual',
         'Study Guide',
+        'Textbook',
+        'Handbook',
         'Assignment',
         'Novel',
         'Journal',
