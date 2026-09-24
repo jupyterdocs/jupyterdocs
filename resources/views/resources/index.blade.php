@@ -39,11 +39,7 @@
             @endif
 
             <form method="GET" action="{{ route('resources.index') }}" class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 shadow-sm rounded-xl p-4 flex flex-wrap gap-3 items-end">
-                <div class="flex-1 min-w-[200px]">
-                    <label class="block text-sm font-display font-medium text-pine dark:text-mint">{{ __('Search') }}</label>
-                    <input type="text" name="q" value="{{ $q }}" placeholder="Title, description, course, tag..."
-                           class="mt-1 block w-full rounded-lg border-pine/15 dark:border-mint/15 bg-white dark:bg-cypress text-pine dark:text-mint placeholder:text-jd-ink-muted/60 dark:placeholder-sage/60 focus:border-moss dark:focus:border-sage focus:ring-moss dark:focus:ring-sage text-sm font-display">
-                </div>
+                <x-search-box :value="$q" />
                 <div>
                     <label class="block text-sm font-display font-medium text-pine dark:text-mint">{{ __('Type') }}</label>
                     <select name="type" class="mt-1 block w-full rounded-lg border-pine/15 dark:border-mint/15 bg-white dark:bg-cypress text-pine dark:text-mint focus:border-moss dark:focus:border-sage focus:ring-moss dark:focus:ring-sage text-sm font-display">
@@ -57,6 +53,24 @@
                     {{ __('Search') }}
                 </button>
             </form>
+
+            @if ($search)
+                <div class="space-y-1 text-sm">
+                    @if ($search->wasCorrected())
+                        <p class="text-pine dark:text-mint">
+                            {{ __('Showing results for') }}
+                            <a href="{{ route('resources.index', array_filter(['q' => $search->correctedQuery, 'type' => $selectedType])) }}" class="font-display font-semibold italic text-moss dark:text-sage hover:underline">{{ $search->correctedQuery }}</a>
+                        </p>
+                        <p class="text-jd-ink-muted dark:text-sage">
+                            {{ __('Search instead for') }}
+                            <a href="{{ route('resources.index', array_filter(['q' => $q, 'type' => $selectedType, 'exact' => 1])) }}" class="hover:underline">{{ $q }}</a>
+                        </p>
+                    @endif
+                    <p class="text-jd-ink-muted dark:text-sage font-mono text-xs">
+                        {{ trans_choice('{0} No results|{1} 1 result|[2,*] :count results', $search->total(), ['count' => number_format($search->total())]) }}
+                    </p>
+                </div>
+            @endif
 
             @auth
                 @if (Auth::user()->canDownload())
@@ -102,7 +116,10 @@
                             @endif
                         </div>
                         <div class="px-4 pt-4">
-                            <h3 class="font-display font-bold text-pine dark:text-mint line-clamp-2 leading-snug">{{ $resource->title }}</h3>
+                            <h3 class="font-display font-bold text-pine dark:text-mint line-clamp-2 leading-snug">{!! $highlighter ? $highlighter->highlight($resource->title) : e($resource->title) !!}</h3>
+                            @if ($highlighter && $resource->description)
+                                <p class="mt-1 text-xs text-jd-ink-muted dark:text-sage line-clamp-3">{!! $highlighter->snippet($resource->description) !!}</p>
+                            @endif
                             <p class="mt-2 text-sm text-jd-ink-muted dark:text-sage font-serif">{{ __('Added by') }} {{ $resource->uploaderDisplayName() }}</p>
                         </div>
                         </a>
@@ -112,7 +129,19 @@
                         </div>
                     </div>
                 @empty
-                    <p class="text-jd-ink-muted dark:text-sage col-span-full">{{ __('No resources found yet.') }}</p>
+                    @if ($q)
+                        <div class="col-span-full rounded-xl border border-pine/10 dark:border-mint/10 bg-white dark:bg-pine p-6 text-sm text-jd-ink-muted dark:text-sage space-y-2">
+                            <p class="font-display font-semibold text-pine dark:text-mint">{{ __('No documents match “:q”.', ['q' => $q]) }}</p>
+                            <ul class="list-disc ps-5 space-y-1">
+                                <li>{{ __('Check the spelling, or try a different word for the same thing.') }}</li>
+                                <li>{{ __('Use fewer or more general words — "calculus" instead of "calculus 2 final exam solutions".') }}</li>
+                                <li>{{ __('Remove quotation marks or minus signs; they make the search stricter.') }}</li>
+                                <li>{{ __('Set the type back to "All types".') }}</li>
+                            </ul>
+                        </div>
+                    @else
+                        <p class="text-jd-ink-muted dark:text-sage col-span-full">{{ __('No resources found yet.') }}</p>
+                    @endif
                 @endforelse
             </div>
 

@@ -11,9 +11,12 @@ use App\Models\ResourceVote;
 use App\Models\Tag;
 use App\Models\University;
 use App\Support\OfficeDocumentInspector;
+use App\Support\Search\ResourceSearch;
+use App\Support\Search\ResourceSearchIndexer;
 use App\Support\TagGenerator;
 use App\Support\ThumbnailStorage;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
@@ -21,13 +24,41 @@ class ResourceController extends Controller
 {
     public function index(Request $request)
     {
-        $resources = Resource::approved()
-            ->search($request->query('q'))
-            ->when($request->query('type'), fn ($q, $typeId) => $q->where('resource_type_id', $typeId))
-            ->with(['uploader', 'resourceType', 'course', 'university'])
-            ->latest()
-            ->paginate(12)
-            ->withQueryString();
+        $q = trim((string) $request->query('q', ''));
+        $typeId = $request->query('type') ?: null;
+        $perPage = (int) config('search.per_page');
+
+        $search = $q !== ''
+            ? app(ResourceSearch::class)->search($q, $typeId ? (int) $typeId : null, ! $request->boolean('exact'))
+            : null;
+
+        if ($search && $search->searched) {
+            // Ranked results: page through the ordered ids, then load just
+            // that page's documents and put them back in rank order.
+            $page = LengthAwarePaginator::resolveCurrentPage();
+            $pageIds = array_slice($search->ids, ($page - 1) * $perPage, $perPage);
+
+            $models = Resource::approved()
+                ->whereIn('id', $pageIds)
+                ->with(['uploader', 'resourceType', 'course', 'university'])
+                ->get()
+                ->keyBy('id');
+
+            $resources = new LengthAwarePaginator(
+                collect($pageIds)->map(fn ($id) => $models->get($id))->filter()->values(),
+                $search->total(),
+                $perPage,
+                $page,
+                ['path' => $request->url(), 'query' => $request->query()]
+            );
+        } else {
+            $resources = Resource::approved()
+                ->when($typeId, fn ($query) => $query->where('resource_type_id', $typeId))
+                ->with(['uploader', 'resourceType', 'course', 'university'])
+                ->latest()
+                ->paginate($perPage)
+                ->withQueryString();
+        }
 
         $resourceTypes = ResourceType::orderBy('name')->get();
 
@@ -39,8 +70,10 @@ class ResourceController extends Controller
             'resources' => $resources,
             'savedIds' => $savedIds,
             'resourceTypes' => $resourceTypes,
-            'q' => $request->query('q'),
+            'q' => $q,
             'selectedType' => $request->query('type'),
+            'search' => $search && $search->searched ? $search : null,
+            'highlighter' => $search && $search->searched ? $search->highlighter() : null,
         ]);
     }
 
@@ -208,6 +241,14 @@ class ResourceController extends Controller
         )->id);
 
         $resource->tags()->sync($tagIds);
+
+        // The observer indexed the row at creation, before its tags existed;
+        // index again now that they're attached so tags are searchable too.
+        try {
+            app(ResourceSearchIndexer::class)->index($resource);
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         if (auth()->guest()) {
             session()->push('guest_uploads', $resource->id);

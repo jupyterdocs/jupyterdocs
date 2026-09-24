@@ -211,3 +211,11 @@ html.show-splash #pwa-splash .splash-ring {
 .dark .legal-content a:hover {
     color: theme('colors.mint');
 }
+
+/* Searched words highlighted inside result titles and snippets. */
+.jd-mark {
+    background-color: rgba(250, 204, 21, 0.35);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+}

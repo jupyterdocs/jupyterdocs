@@ -145,20 +145,6 @@ class Resource extends Model
         return $query->where('status', 'approved');
     }
 
-    public function scopeSearch(Builder $query, ?string $term): Builder
-    {
-        if (blank($term)) {
-            return $query;
-        }
-
-        return $query->where(function (Builder $q) use ($term) {
-            $q->where('title', 'like', "%{$term}%")
-                ->orWhere('description', 'like', "%{$term}%")
-                ->orWhereHas('course', fn (Builder $c) => $c->where('name', 'like', "%{$term}%"))
-                ->orWhereHas('tags', fn (Builder $t) => $t->where('name', 'like', "%{$term}%"));
-        });
-    }
-
     public function uploaderDisplayName(): string
     {
         return $this->uploader?->name ?? $this->uploader_name ?? 'Anonymous';

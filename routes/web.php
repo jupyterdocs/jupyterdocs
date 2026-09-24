@@ -11,6 +11,7 @@ use App\Http\Controllers\LegalController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\ResourceInteractionController;
+use App\Http\Controllers\SearchSuggestController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/browse', [ResourceController::class, 'index'])->name('resources.index');
+Route::get('/search/suggest', SearchSuggestController::class)->middleware('throttle:120,1')->name('search.suggest');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
