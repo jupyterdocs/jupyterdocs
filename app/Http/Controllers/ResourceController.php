@@ -10,6 +10,7 @@ use App\Models\ResourceType;
 use App\Models\ResourceVote;
 use App\Models\Tag;
 use App\Models\University;
+use App\Rules\WordCount;
 use App\Support\OfficeDocumentInspector;
 use App\Support\Search\ResourceSearch;
 use App\Support\Search\ResourceSearchIndexer;
@@ -271,7 +272,7 @@ class ResourceController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string', 'min:2', 'max:150'],
+            'description' => ['required', 'string', 'max:5000', new WordCount(2, 500)],
             'resource_type_id' => ['required', 'exists:resource_types,id'],
         ]);
 

@@ -36,7 +36,7 @@
                                     &middot; {{ $resource->created_at->diffForHumans() }}
                                 </div>
                                 @if ($resource->description)
-                                    <p class="text-sm text-jd-ink-muted dark:text-sage font-serif mt-1">{{ $resource->description }}</p>
+                                    <p class="text-sm text-jd-ink-muted dark:text-sage font-serif mt-1 line-clamp-3">{{ $resource->description }}</p>
                                 @endif
                             </div>
                         </div>

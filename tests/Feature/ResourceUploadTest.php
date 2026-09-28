@@ -38,21 +38,33 @@ class ResourceUploadTest extends TestCase
         ];
     }
 
-    public function test_description_outside_2_to_150_characters_is_rejected(): void
+    public function test_description_outside_2_to_500_words_is_rejected(): void
     {
         $user = User::factory()->create();
 
         $this->actingAs($user)->post(route('resources.store'), [
             ...$this->validPayload,
-            'description' => 'X',
+            'description' => 'Oneword',
         ])->assertSessionHasErrors('description');
 
         $this->actingAs($user)->post(route('resources.store'), [
             ...$this->validPayload,
-            'description' => str_repeat('a', 151),
+            'description' => str_repeat('word ', 501),
         ])->assertSessionHasErrors('description');
 
         $this->assertSame(0, Resource::count());
+    }
+
+    public function test_description_of_500_words_is_accepted(): void
+    {
+        Queue::fake();
+
+        $this->actingAs(User::factory()->create())->post(route('resources.store'), [
+            ...$this->validPayload,
+            'description' => trim(str_repeat('lecture ', 500)),
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame(1, Resource::count());
     }
 
     public function test_upload_auto_generates_tags_and_unlocks_downloads_without_waiting_for_admin_approval(): void

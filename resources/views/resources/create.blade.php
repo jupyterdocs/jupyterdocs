@@ -66,10 +66,10 @@
                     <div>
                         <div class="flex items-baseline justify-between">
                             <x-input-label for="description" :value="__('Description')" />
-                            <span id="description_count" class="text-xs font-mono text-jd-ink-muted dark:text-sage">0 / 150</span>
+                            <span id="description_count" class="text-xs font-mono text-jd-ink-muted dark:text-sage">0 / 500 words</span>
                         </div>
-                        <textarea id="description" name="description" rows="5" minlength="2" maxlength="150" required class="mt-1 block w-full rounded-lg border-pine/15 dark:border-mint/15 bg-white dark:bg-cypress text-pine dark:text-mint shadow-sm focus:border-moss dark:focus:border-sage focus:ring-moss dark:focus:ring-sage font-display" placeholder="What is this document, which topics does it cover, and who is it useful for? Up to 150 characters — this is what helps other students find it.">{{ old('description') }}</textarea>
-                        <p class="mt-1 text-xs text-jd-ink-muted dark:text-sage">{{ __('Up to 150 characters. A short description makes this document easy for others to find.') }}</p>
+                        <textarea id="description" name="description" rows="8" required class="mt-1 block w-full rounded-lg border-pine/15 dark:border-mint/15 bg-white dark:bg-cypress text-pine dark:text-mint shadow-sm focus:border-moss dark:focus:border-sage focus:ring-moss dark:focus:ring-sage font-display" placeholder="What is this document, which topics does it cover, and who is it useful for? Between 2 and 500 words — this is what helps other students find it.">{{ old('description') }}</textarea>
+                        <p class="mt-1 text-xs text-jd-ink-muted dark:text-sage">{{ __('2 to 500 words. A good description makes this document easy for others to find.') }}</p>
                         <x-input-error :messages="$errors->get('description')" class="mt-2" />
                     </div>
 
@@ -127,8 +127,15 @@
         const descriptionCount = document.getElementById('description_count');
 
         function updateDescriptionCount() {
-            const len = descriptionField.value.length;
-            descriptionCount.textContent = `${len} / 150`;
+            const words = descriptionField.value.trim().split(/\s+/).filter(Boolean).length;
+            const tooMany = words > 500;
+
+            descriptionCount.textContent = `${words} / 500 words`;
+            descriptionCount.classList.toggle('text-jd-danger', tooMany);
+            descriptionField.setCustomValidity(
+                tooMany ? `Please keep the description to 500 words or fewer (it has ${words}).`
+                    : words < 2 ? 'Please write at least 2 words.' : ''
+            );
         }
 
         descriptionField?.addEventListener('input', updateDescriptionCount);

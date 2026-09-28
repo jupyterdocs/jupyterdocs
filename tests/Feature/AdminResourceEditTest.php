@@ -97,7 +97,7 @@ class AdminResourceEditTest extends TestCase
 
         $this->actingAs($this->admin())->patch(route('admin.resources.update', $resource), [
             'title' => '',
-            'description' => str_repeat('a', 151),
+            'description' => str_repeat('word ', 501),
             'resource_type_id' => 999999,
         ])->assertSessionHasErrors(['title', 'description', 'resource_type_id']);
 
