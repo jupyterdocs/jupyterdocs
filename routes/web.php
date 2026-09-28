@@ -80,6 +80,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/conversion/status', [ConversionController::class, 'status'])->name('conversion.status');
         Route::post('/conversion/start-local', [ConversionController::class, 'startLocal'])->name('conversion.start-local');
 
+        Route::get('/resources/{resource}/edit', [ResourceController::class, 'edit'])->name('resources.edit');
+        Route::patch('/resources/{resource}', [ResourceController::class, 'update'])->name('resources.update');
         Route::delete('/resources/{resource}', [ResourceController::class, 'destroy'])->name('resources.destroy');
 
         Route::get('/moderation', [ModerationController::class, 'index'])->name('moderation.index');

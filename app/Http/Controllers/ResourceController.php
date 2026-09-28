@@ -233,22 +233,9 @@ class ResourceController extends Controller
             ConvertResourceToPdf::dispatch($resource->id);
         }
 
-        $tagNames = TagGenerator::generate($validated['title'], $validated['description']);
-
-        $tagIds = collect($tagNames)->map(fn ($name) => Tag::firstOrCreate(
-            ['slug' => Str::slug($name)],
-            ['name' => $name]
-        )->id);
-
-        $resource->tags()->sync($tagIds);
-
         // The observer indexed the row at creation, before its tags existed;
-        // index again now that they're attached so tags are searchable too.
-        try {
-            app(ResourceSearchIndexer::class)->index($resource);
-        } catch (\Throwable $e) {
-            report($e);
-        }
+        // this indexes again once they're attached so tags are searchable too.
+        $this->syncGeneratedTags($resource);
 
         if (auth()->guest()) {
             session()->push('guest_uploads', $resource->id);
@@ -271,11 +258,63 @@ class ResourceController extends Controller
         return view('resources.mine', ['resources' => $resources]);
     }
 
+    public function edit(Resource $resource)
+    {
+        return view('admin.resources.edit', [
+            'resource' => $resource,
+            'resourceTypes' => ResourceType::orderBy('name')->get(),
+            'returnTo' => url()->previous(),
+        ]);
+    }
+
+    public function update(Request $request, Resource $resource)
+    {
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string', 'min:2', 'max:150'],
+            'resource_type_id' => ['required', 'exists:resource_types,id'],
+        ]);
+
+        $resource->update($validated);
+
+        // Tags are derived from the title and description, so they go stale
+        // the moment either changes.
+        if ($resource->wasChanged(['title', 'description'])) {
+            $this->syncGeneratedTags($resource);
+        }
+
+        // Send the admin back where they started (moderation queue, the
+        // document page, ...) — but never off-site.
+        $returnTo = (string) $request->input('return_to');
+        $destination = str_starts_with($returnTo, url('/').'/') && ! str_contains($returnTo, '/admin/resources/')
+            ? $returnTo
+            : route('resources.show', $resource);
+
+        return redirect()->to($destination)->with('status', 'Document details updated.');
+    }
+
     public function destroy(Resource $resource)
     {
         $resource->delete();
 
         return redirect()->route('resources.index')->with('status', 'Resource deleted.');
+    }
+
+    private function syncGeneratedTags(Resource $resource): void
+    {
+        $tagIds = collect(TagGenerator::generate($resource->title, $resource->description))
+            ->map(fn ($name) => Tag::firstOrCreate(
+                ['slug' => Str::slug($name)],
+                ['name' => $name]
+            )->id);
+
+        $resource->tags()->sync($tagIds);
+
+        try {
+            app(ResourceSearchIndexer::class)->index($resource);
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     private function firstOrCreateByName(string $modelClass, ?string $name)

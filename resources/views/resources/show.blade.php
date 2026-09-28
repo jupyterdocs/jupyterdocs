@@ -173,6 +173,10 @@
                         <p id="share-status" class="text-xs text-center text-jd-ink-muted dark:text-sage h-4"></p>
 
                         @if (Auth::user()?->isAdmin())
+                            <a href="{{ route('admin.resources.edit', $resource) }}"
+                               class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-transparent border border-pine/20 dark:border-mint/20 text-pine dark:text-mint rounded-lg text-sm font-display font-semibold hover:bg-jd-surface-2 dark:hover:bg-cypress transition">
+                                {{ __('Edit Details') }}
+                            </a>
                             <form method="POST" action="{{ route('admin.resources.destroy', $resource) }}" onsubmit="return confirm('{{ __('Delete this resource permanently? This cannot be undone from the UI.') }}')">
                                 @csrf
                                 @method('DELETE')

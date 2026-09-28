@@ -47,6 +47,11 @@
                                 {{ __('Preview') }}
                             </a>
 
+                            <a href="{{ route('admin.resources.edit', $resource) }}"
+                               class="inline-flex items-center px-3 py-1.5 bg-transparent border border-pine/20 dark:border-mint/20 text-jd-ink-muted dark:text-sage rounded-lg text-xs font-display font-semibold hover:bg-jd-surface-2">
+                                {{ __('Edit') }}
+                            </a>
+
                             <form method="POST" action="{{ route('admin.moderation.approve', $resource) }}">
                                 @csrf
                                 <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-moss dark:bg-ember text-jd-bg dark:text-pine rounded-lg text-xs font-display font-semibold hover:bg-cypress dark:hover:bg-ember-bright">
