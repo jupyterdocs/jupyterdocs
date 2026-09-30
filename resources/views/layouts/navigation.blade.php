@@ -26,6 +26,9 @@
                         <x-nav-link :href="route('resources.saved')" :active="request()->routeIs('resources.saved')">
                             {{ __('Saved') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('requests.index')" :active="request()->routeIs('requests.*')">
+                            {{ __('Requests') }}
+                        </x-nav-link>
                         @if (Auth::user()->isAdmin())
                             <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
                                 {{ __('Admin') }}
@@ -140,6 +143,9 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('resources.saved')" :active="request()->routeIs('resources.saved')">
                     {{ __('Saved') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('requests.index')" :active="request()->routeIs('requests.*')">
+                    {{ __('Requests') }}
                 </x-responsive-nav-link>
                 @if (Auth::user()->isAdmin())
                     <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">

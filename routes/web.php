@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ConversionController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ResourceRequestController as AdminResourceRequestController;
 use App\Http\Controllers\Admin\TrafficController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DownloadController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\LegalController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\ResourceInteractionController;
+use App\Http\Controllers\ResourceRequestController;
 use App\Http\Controllers\SearchSuggestController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
@@ -64,6 +66,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/resources/{resource}/vote', [ResourceInteractionController::class, 'vote'])->name('resources.vote');
     Route::post('/resources/{resource}/report', [ResourceInteractionController::class, 'report'])->name('resources.report');
 
+    Route::get('/requests', [ResourceRequestController::class, 'index'])->name('requests.index');
+    Route::get('/requests/create', [ResourceRequestController::class, 'create'])->name('requests.create');
+    Route::post('/requests', [ResourceRequestController::class, 'store'])->name('requests.store');
+    Route::post('/requests/{resourceRequest}/upvote', [ResourceRequestController::class, 'upvote'])->name('requests.upvote');
+
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -89,6 +96,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/moderation/{resource}/reject', [ModerationController::class, 'reject'])->name('moderation.reject');
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::patch('/reports/{report}', [ReportController::class, 'update'])->name('reports.update');
+
+        Route::get('/requests', [AdminResourceRequestController::class, 'index'])->name('requests.index');
+        Route::patch('/requests/{resourceRequest}', [AdminResourceRequestController::class, 'update'])->name('requests.update');
     });
 });
 

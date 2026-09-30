@@ -7,6 +7,7 @@
         ['route' => 'admin.conversion.index', 'pattern' => 'admin.conversion.*', 'label' => __('Conversion')],
         ['route' => 'admin.moderation.index', 'pattern' => 'admin.moderation.*', 'label' => __('Moderation')],
         ['route' => 'admin.reports.index', 'pattern' => 'admin.reports.*', 'label' => __('Reports')],
+        ['route' => 'admin.requests.index', 'pattern' => 'admin.requests.*', 'label' => __('Requests')],
     ];
 @endphp
 

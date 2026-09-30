@@ -89,6 +89,16 @@ class User extends Authenticatable
         return $this->hasMany(ResourceReport::class);
     }
 
+    public function resourceRequests(): HasMany
+    {
+        return $this->hasMany(ResourceRequest::class);
+    }
+
+    public function resourceRequestVotes(): HasMany
+    {
+        return $this->hasMany(ResourceRequestVote::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
