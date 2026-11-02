@@ -159,19 +159,15 @@
 
                 (async () => {
                     try {
-                        // disableStream/disableAutoFetch force pure range-request
-                        // mode: pdf.js fetches only the bytes it needs (xref, page
-                        // tree, then each page's content stream as it's viewed)
-                        // instead of also streaming the whole file in the
-                        // background. Relies on the server supporting Range
-                        // requests on resources.read, which it does.
+                        // Streaming + auto-fetch stay on: some PDFs (large or
+                        // non-linearized ones) make pdf.js read most of the
+                        // file anyway, and a single streamed download is far
+                        // faster than dozens of sequential range requests that
+                        // each pay ~0.5s of fixed server latency. Range
+                        // requests (big chunks) remain the fallback for jumping
+                        // to a specific page.
                         pdfDoc = await pdfjsLib.getDocument({
                             url: '{{ route('resources.read', $resource) }}',
-                            disableStream: true,
-                            disableAutoFetch: true,
-                            // Each range request costs ~0.5s of fixed server
-                            // latency, so fetch big chunks: a few round trips
-                            // instead of dozens of 64KB ones.
                             rangeChunkSize: 2 * 1024 * 1024,
                         }).promise;
                         numPages = pdfDoc.numPages;

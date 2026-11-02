@@ -219,9 +219,15 @@ class ResourceController extends Controller
         // what's backing it.
         return response()->stream(function () use ($body) {
             while (! $body->eof()) {
+                // pdf.js aborts its initial full-file request once it has
+                // switched to ranges; stop pulling from R2 when that happens.
+                if (connection_aborted()) {
+                    break;
+                }
                 echo $body->read(1024 * 1024);
                 flush();
             }
+            $body->close();
         }, $range ? 206 : 200, $headers);
     }
 
