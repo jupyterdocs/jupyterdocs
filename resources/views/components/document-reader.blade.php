@@ -3,21 +3,29 @@
 <div {{ $attributes->merge(['class' => 'bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 rounded-xl shadow-sm overflow-hidden']) }}>
     @if ($resource->hasPdfPreview())
         {{-- Nothing below downloads until the reader opts in: no pdf.js, no PDF bytes. --}}
-        <div id="reader-start" class="flex items-center gap-4 p-4 sm:p-6">
-            <div class="shrink-0 w-16 h-20 sm:w-20 sm:h-28 bg-jd-surface-2 dark:bg-cypress rounded border border-pine/10 dark:border-mint/10 overflow-hidden flex items-center justify-center">
-                @if ($resource->thumbnailUrl())
-                    <img src="{{ $resource->thumbnailUrl() }}" class="w-full h-full object-cover object-top" alt="" loading="lazy">
-                @else
-                    <svg class="w-8 h-8 text-sage/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                @endif
-            </div>
-            <div class="min-w-0 flex-1">
-                <p class="font-display font-semibold text-pine dark:text-mint">{{ __('Read this document') }}</p>
-                <p class="mt-0.5 text-xs font-mono text-jd-ink-muted dark:text-sage">
-                    @if ($resource->pagesLabel()){{ $resource->pagesLabel() }} · @endif{{ $resource->file_size >= 1048576 ? number_format($resource->file_size / 1048576, 1).' MB' : number_format($resource->file_size / 1024, 0).' KB' }}
-                </p>
-                <p class="mt-1 text-xs text-jd-ink-muted dark:text-sage font-serif italic">{{ __('Opens in a distraction-free reader. Nothing is downloaded until you tap, so it won\'t use your data unless you want to read.') }}</p>
-                <button type="button" id="read-start" class="mt-3 inline-flex items-center justify-center px-4 py-2 bg-moss dark:bg-ember text-jd-bg dark:text-pine rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:hover:bg-ember-bright transition">
+        <div id="reader-start">
+            {{-- Low-res first-page preview: the thumbnail is already cached/loaded, so this costs no extra data. --}}
+            <button type="button" id="read-preview" class="relative block w-full bg-jd-surface-3 dark:bg-abyss px-3 pt-4 sm:px-6 sm:pt-6 text-left cursor-pointer" aria-label="{{ __('Start reading') }}">
+                <div class="relative mx-auto max-w-xl overflow-hidden bg-white dark:bg-pine shadow-md" style="max-height: 62vh;">
+                    @if ($resource->thumbnailUrl())
+                        <img src="{{ $resource->thumbnailUrl() }}" class="block w-full h-auto" alt="{{ __('Preview of :title', ['title' => $resource->title]) }}" decoding="async">
+                    @else
+                        <div class="h-64 flex items-center justify-center">
+                            <svg class="w-12 h-12 text-sage/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        </div>
+                    @endif
+                    <div class="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-jd-surface-3 dark:from-abyss to-transparent"></div>
+                </div>
+            </button>
+            <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 border-t border-pine/10 dark:border-mint/10">
+                <div class="min-w-0">
+                    <p class="font-display font-semibold text-pine dark:text-mint">{{ __('Preview of page 1') }}</p>
+                    <p class="mt-0.5 text-xs font-mono text-jd-ink-muted dark:text-sage">
+                        @if ($resource->pagesLabel()){{ $resource->pagesLabel() }} &middot; @endif{{ $resource->file_size >= 1048576 ? number_format($resource->file_size / 1048576, 1).' MB' : number_format($resource->file_size / 1024, 0).' KB' }}
+                    </p>
+                    <p class="mt-1 text-xs text-jd-ink-muted dark:text-sage font-serif italic">{{ __('The full document only downloads when you tap Start reading, so it will not use your data unless you want to read.') }}</p>
+                </div>
+                <button type="button" id="read-start" class="shrink-0 inline-flex items-center justify-center px-5 py-2.5 bg-moss dark:bg-ember text-jd-bg dark:text-pine rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:hover:bg-ember-bright transition">
                     {{ __('Start reading') }}
                 </button>
             </div>
@@ -304,6 +312,7 @@
                 }
 
                 startBtn.addEventListener('click', openReader);
+                document.getElementById('read-preview').addEventListener('click', openReader);
                 closeBtn.addEventListener('click', closeReader);
                 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeReader(); });
                 viewerContainer.addEventListener('scroll', onScroll);
