@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreResourceRequest;
 use App\Jobs\ConvertResourceToPdf;
+use App\Jobs\LinearizeResourcePdf;
 use App\Models\Course;
 use App\Models\Resource;
 use App\Models\ResourceType;
@@ -301,6 +302,12 @@ class ResourceController extends Controller
             $resource->save();
 
             ConvertResourceToPdf::dispatch($resource->id);
+        }
+
+        // Native PDFs are stored as uploaded; linearize them in the
+        // background so the online viewer opens fast.
+        if ($format === 'pdf') {
+            LinearizeResourcePdf::dispatch($resource->id);
         }
 
         // The observer indexed the row at creation, before its tags existed;

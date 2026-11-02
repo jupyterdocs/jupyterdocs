@@ -10,6 +10,14 @@ return [
 
     'converted_path_prefix' => 'converted',
 
+    // qpdf rewrites PDFs as linearized ("fast web view") files so previews
+    // show page 1 without crawling the whole file. Silently skipped when the
+    // binary isn't installed.
+    'linearize' => [
+        'binary' => env('QPDF_BINARY', 'qpdf'),
+        'timeout' => (int) env('QPDF_TIMEOUT', 120),
+    ],
+
     // CloudConvert's free tier resets daily; this tracks how many
     // conversions have been used today so the app can fail over to
     // Gotenberg (or give up gracefully) once the quota is exhausted.

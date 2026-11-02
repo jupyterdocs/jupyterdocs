@@ -3,6 +3,7 @@
 namespace App\Support\Conversion;
 
 use App\Models\Resource;
+use App\Support\Pdf\PdfLinearizer;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -28,7 +29,7 @@ trait AppliesConversionResult
 
         $path = config('conversion.converted_path_prefix')."/{$resource->id}.pdf";
 
-        Storage::disk(config('filesystems.resource_disk'))->put($path, $result->pdfContents);
+        Storage::disk(config('filesystems.resource_disk'))->put($path, app(PdfLinearizer::class)->linearizeContents($result->pdfContents));
 
         $resource->converted_pdf_path = $path;
         $resource->conversion_status = 'done';
