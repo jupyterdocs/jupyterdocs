@@ -53,7 +53,7 @@
         <script type="application/ld+json">{!! $breadcrumbData !!}</script>
     </x-slot>
 
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="max-w-[1600px] mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6">
 
         @if (session('status'))
             <div class="mb-4 rounded-lg bg-jd-success/10 border border-jd-success/20 text-jd-success px-4 py-3 text-sm">
@@ -70,7 +70,7 @@
         <div class="flex flex-col lg:flex-row gap-6 items-start">
 
             {{-- Left: document info --}}
-            <aside class="w-full lg:w-72 shrink-0 order-1">
+            <aside class="w-full lg:w-72 shrink-0 order-2 lg:order-1">
                 <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 rounded-xl shadow-sm p-5">
                     <div class="text-xs font-mono font-semibold text-moss dark:text-sage uppercase tracking-wide">
                         {{ $resource->resourceType->name }}
@@ -242,12 +242,12 @@
             </aside>
 
             {{-- Center: page-by-page viewer --}}
-            <main class="flex-1 min-w-0 order-3 lg:order-2 w-full">
+            <main class="flex-1 min-w-0 order-1 lg:order-2 w-full">
                 <x-document-reader :resource="$resource" />
             </main>
 
             {{-- Right: related documents --}}
-            <aside class="w-full lg:w-72 shrink-0 order-2 lg:order-3 space-y-3">
+            <aside class="w-full lg:w-72 shrink-0 order-3 space-y-3">
                 <h2 class="text-sm font-mono font-semibold text-jd-ink-muted dark:text-sage uppercase tracking-wide">{{ __('Related Documents') }}</h2>
                 @forelse ($related as $item)
                     <a href="{{ route('resources.show', $item) }}" class="flex gap-3 bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 rounded-xl shadow-sm p-3 hover:shadow-md transition">
