@@ -159,7 +159,18 @@
 
                 (async () => {
                     try {
-                        pdfDoc = await pdfjsLib.getDocument('{{ route('resources.read', $resource) }}').promise;
+                        // disableStream/disableAutoFetch force pure range-request
+                        // mode: pdf.js fetches only the bytes it needs (xref, page
+                        // tree, then each page's content stream as it's viewed)
+                        // instead of also streaming the whole file in the
+                        // background. Relies on the server supporting Range
+                        // requests on resources.read, which it does.
+                        pdfDoc = await pdfjsLib.getDocument({
+                            url: '{{ route('resources.read', $resource) }}',
+                            disableStream: true,
+                            disableAutoFetch: true,
+                            rangeChunkSize: 65536,
+                        }).promise;
                         numPages = pdfDoc.numPages;
                         pageCount.textContent = numPages;
                         pageInput.max = numPages;
