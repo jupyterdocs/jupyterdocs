@@ -19,7 +19,9 @@ use App\Support\ThumbnailStorage;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class ResourceController extends Controller
 {
@@ -166,7 +168,7 @@ class ResourceController extends Controller
         $disposition = 'inline; filename="'.$resource->title.'.pdf"';
 
         if (in_array($diskName, ['s3', 'r2'], true)) {
-            return $this->streamS3Range($disk, $path, $disposition);
+            return $this->streamS3Range($disk, $diskName, $path, $disposition);
         }
 
         return response()->file($disk->path($path), ['Content-Disposition' => $disposition]);
@@ -177,16 +179,22 @@ class ResourceController extends Controller
      * underlying AWS client, so the only bytes pulled through this server
      * are the chunk pdf.js actually asked for — never the whole file.
      */
-    private function streamS3Range($disk, string $path, string $disposition)
+    private function streamS3Range($disk, string $diskName, string $path, string $disposition)
     {
         $range = request()->header('Range');
+        $bucket = config("filesystems.disks.{$diskName}.bucket");
 
-        $args = ['Bucket' => $disk->getBucket(), 'Key' => $path];
+        $args = ['Bucket' => $bucket, 'Key' => $path];
         if ($range) {
             $args['Range'] = $range;
         }
 
-        $result = $disk->getClient()->getObject($args);
+        try {
+            $result = $disk->getClient()->getObject($args);
+        } catch (Throwable $e) {
+            Log::error('S3/R2 preview fetch failed', ['path' => $path, 'range' => $range, 'error' => $e->getMessage()]);
+            abort(404);
+        }
 
         $headers = [
             'Content-Type' => 'application/pdf',
@@ -199,8 +207,17 @@ class ResourceController extends Controller
             $headers['Content-Range'] = $result['ContentRange'];
         }
 
-        return response()->stream(function () use ($result) {
-            fpassthru($result['Body']->detach());
+        $body = $result['Body'];
+
+        // detach() isn't guaranteed to hand back a readable resource for
+        // every AWS SDK HTTP handler, so read the stream through its own
+        // PSR-7 interface instead — works the same way regardless of
+        // what's backing it.
+        return response()->stream(function () use ($body) {
+            while (! $body->eof()) {
+                echo $body->read(1024 * 1024);
+                flush();
+            }
         }, $range ? 206 : 200, $headers);
     }
 
