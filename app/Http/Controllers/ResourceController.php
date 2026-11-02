@@ -163,13 +163,17 @@ class ResourceController extends Controller
         $diskName = config('filesystems.resource_disk');
         $disk = Storage::disk($diskName);
 
-        abort_unless($path && $disk->exists($path), 404);
+        abort_unless($path, 404);
 
         $disposition = 'inline; filename="'.$resource->title.'.pdf"';
 
+        // S3/R2: skip exists() (an extra HEAD round trip on every chunk);
+        // getObject already fails for a missing key and is turned into a 404.
         if (in_array($diskName, ['s3', 'r2'], true)) {
             return $this->streamS3Range($disk, $diskName, $path, $disposition);
         }
+
+        abort_unless($disk->exists($path), 404);
 
         return response()->file($disk->path($path), ['Content-Disposition' => $disposition]);
     }

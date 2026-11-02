@@ -169,7 +169,10 @@
                             url: '{{ route('resources.read', $resource) }}',
                             disableStream: true,
                             disableAutoFetch: true,
-                            rangeChunkSize: 65536,
+                            // Each range request costs ~0.5s of fixed server
+                            // latency, so fetch big chunks: a few round trips
+                            // instead of dozens of 64KB ones.
+                            rangeChunkSize: 2 * 1024 * 1024,
                         }).promise;
                         numPages = pdfDoc.numPages;
                         pageCount.textContent = numPages;
