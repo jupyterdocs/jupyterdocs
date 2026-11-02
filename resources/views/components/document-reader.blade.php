@@ -5,7 +5,7 @@
         {{-- Nothing below downloads until the reader opts in: no pdf.js, no PDF bytes. --}}
         <div id="reader-start">
             {{-- Low-res first-page preview: the thumbnail is already cached/loaded, so this costs no extra data. --}}
-            <button type="button" id="read-preview" class="relative block w-full bg-jd-surface-3 dark:bg-abyss px-3 pt-4 sm:px-6 sm:pt-6 text-left cursor-pointer" aria-label="{{ __('Scroll through the preview') }}">
+            <button type="button" id="read-preview" class="relative block w-full bg-jd-surface-3 dark:bg-abyss px-3 pt-4 sm:px-6 sm:pt-6 text-left cursor-pointer" aria-label="{{ __('Start reading') }}">
                 <div class="relative mx-auto max-w-xl overflow-hidden bg-white dark:bg-pine shadow-md" style="max-height: 62vh;">
                     @if ($resource->thumbnailUrl())
                         <img src="{{ $resource->thumbnailUrl() }}" class="block w-full h-auto" alt="{{ __('Preview of :title', ['title' => $resource->title]) }}" decoding="async">
@@ -15,51 +15,43 @@
                         </div>
                     @endif
                     <div class="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-jd-surface-3 dark:from-abyss to-transparent"></div>
-                    <span class="pointer-events-none absolute inset-x-0 bottom-3 text-center text-xs font-display font-semibold text-pine dark:text-mint">{{ __('Tap to scroll through the preview') }}</span>
                 </div>
             </button>
-            <div id="reader-shell" class="flex flex-col bg-jd-surface-3 dark:bg-abyss" hidden>
-                <div class="flex items-center justify-between gap-2 px-3 py-2 border-b border-pine/10 dark:border-mint/10 bg-jd-surface-2 dark:bg-cypress text-sm font-display">
-                    <div class="flex items-center gap-1">
-                        <button type="button" id="read-close" class="px-2 py-1 rounded hover:bg-white dark:hover:bg-abyss text-pine dark:text-mint font-semibold" aria-label="{{ __('Close') }}">&times; <span id="read-close-label">{{ __('Close') }}</span></button>
-                        <button type="button" id="read-expand" class="px-2 py-1 rounded hover:bg-white dark:hover:bg-abyss text-moss dark:text-ember font-semibold">{{ __('Read full screen') }}</button>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <button type="button" id="prev-page" class="px-2 py-1 rounded hover:bg-white dark:hover:bg-abyss text-pine dark:text-mint disabled:opacity-30" disabled>&larr;</button>
-                        <span class="text-jd-ink-muted dark:text-sage flex items-center gap-1">
-                            <input type="number" id="page-input" value="1" min="1" class="w-12 text-center rounded border-pine/15 dark:border-mint/15 bg-white dark:bg-cypress text-pine dark:text-mint focus:border-moss dark:focus:border-sage focus:ring-moss dark:focus:ring-sage text-sm py-1 font-mono">
-                            <span class="font-mono">/ <span id="page-count">&hellip;</span></span>
-                        </span>
-                        <button type="button" id="next-page" class="px-2 py-1 rounded hover:bg-white dark:hover:bg-abyss text-pine dark:text-mint disabled:opacity-30" disabled>&rarr;</button>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <button type="button" id="zoom-out" class="w-8 h-8 rounded hover:bg-white dark:hover:bg-abyss text-pine dark:text-mint">&minus;</button>
-                        <button type="button" id="zoom-in" class="w-8 h-8 rounded hover:bg-white dark:hover:bg-abyss text-pine dark:text-mint">+</button>
-                    </div>
-                </div>
-                <div id="viewer-container" class="flex-1 overflow-y-auto overscroll-contain" style="max-height: 62vh;">
-                    <div id="viewer-status" class="py-16 flex justify-center">
-                        <x-planet-loader :size="6" :label="__('Loading document…')" />
-                    </div>
-                    <div id="pages-container" class="flex flex-col items-center gap-4 p-1 sm:p-4" hidden></div>
-                </div>
-            </div>
             <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 border-t border-pine/10 dark:border-mint/10">
                 <div class="min-w-0">
-                    <p class="font-display font-semibold text-pine dark:text-mint">{{ __('Preview') }}</p>
+                    <p class="font-display font-semibold text-pine dark:text-mint">{{ __('Preview of page 1') }}</p>
                     <p class="mt-0.5 text-xs font-mono text-jd-ink-muted dark:text-sage">
                         @if ($resource->pagesLabel()){{ $resource->pagesLabel() }} &middot; @endif{{ $resource->file_size >= 1048576 ? number_format($resource->file_size / 1048576, 1).' MB' : number_format($resource->file_size / 1024, 0).' KB' }}
                     </p>
-                    <p class="mt-1 text-xs text-jd-ink-muted dark:text-sage font-serif italic">{{ __('Nothing is downloaded until you tap. Scroll a quick low-quality preview, or start reading in full quality.') }}</p>
+                    <p class="mt-1 text-xs text-jd-ink-muted dark:text-sage font-serif italic">{{ __('The full document only downloads when you tap Start reading, so it will not use your data unless you want to read.') }}</p>
                 </div>
-                <div class="flex shrink-0 flex-wrap items-center gap-2">
-                    <button type="button" id="read-peek" class="inline-flex items-center justify-center px-4 py-2.5 border border-moss dark:border-sage text-moss dark:text-sage rounded-lg text-sm font-display font-semibold hover:bg-jd-surface-2 dark:hover:bg-cypress transition">
-                        {{ __('Scroll preview') }}
-                    </button>
-                    <button type="button" id="read-start" class="inline-flex items-center justify-center px-5 py-2.5 bg-moss dark:bg-ember text-jd-bg dark:text-pine rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:hover:bg-ember-bright transition">
-                        {{ __('Start reading') }}
-                    </button>
+                <button type="button" id="read-start" class="shrink-0 inline-flex items-center justify-center px-5 py-2.5 bg-moss dark:bg-ember text-jd-bg dark:text-pine rounded-lg text-sm font-display font-semibold hover:bg-cypress dark:hover:bg-ember-bright transition">
+                    {{ __('Start reading') }}
+                </button>
+            </div>
+        </div>
+
+        <div id="reader-shell" class="flex flex-col bg-jd-surface-3 dark:bg-abyss" hidden>
+            <div class="flex items-center justify-between gap-2 px-3 py-2 border-b border-pine/10 dark:border-mint/10 bg-jd-surface-2 dark:bg-cypress text-sm font-display">
+                <button type="button" id="read-close" class="px-2 py-1 rounded hover:bg-white dark:hover:bg-abyss text-pine dark:text-mint font-semibold" aria-label="{{ __('Close reader') }}">&times; {{ __('Close') }}</button>
+                <div class="flex items-center gap-1">
+                    <button type="button" id="prev-page" class="px-2 py-1 rounded hover:bg-white dark:hover:bg-abyss text-pine dark:text-mint disabled:opacity-30" disabled>&larr;</button>
+                    <span class="text-jd-ink-muted dark:text-sage flex items-center gap-1">
+                        <input type="number" id="page-input" value="1" min="1" class="w-12 text-center rounded border-pine/15 dark:border-mint/15 bg-white dark:bg-cypress text-pine dark:text-mint focus:border-moss dark:focus:border-sage focus:ring-moss dark:focus:ring-sage text-sm py-1 font-mono">
+                        <span class="font-mono">/ <span id="page-count">&hellip;</span></span>
+                    </span>
+                    <button type="button" id="next-page" class="px-2 py-1 rounded hover:bg-white dark:hover:bg-abyss text-pine dark:text-mint disabled:opacity-30" disabled>&rarr;</button>
                 </div>
+                <div class="flex items-center gap-1">
+                    <button type="button" id="zoom-out" class="w-8 h-8 rounded hover:bg-white dark:hover:bg-abyss text-pine dark:text-mint">&minus;</button>
+                    <button type="button" id="zoom-in" class="w-8 h-8 rounded hover:bg-white dark:hover:bg-abyss text-pine dark:text-mint">+</button>
+                </div>
+            </div>
+            <div id="viewer-container" class="flex-1 overflow-y-auto overscroll-contain">
+                <div id="viewer-status" class="py-16 flex justify-center">
+                    <x-planet-loader :size="6" :label="__('Loading document…')" />
+                </div>
+                <div id="pages-container" class="flex flex-col items-center gap-4 p-1 sm:p-4" hidden></div>
             </div>
         </div>
 
@@ -68,10 +60,7 @@
                 const PDFJS_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
                 const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-                const previewBtn = document.getElementById('read-preview');
-                const peekBtn = document.getElementById('read-peek');
-                const expandBtn = document.getElementById('read-expand');
-                const closeLabel = document.getElementById('read-close-label');
+                const startPanel = document.getElementById('reader-start');
                 const shell = document.getElementById('reader-shell');
                 const startBtn = document.getElementById('read-start');
                 const closeBtn = document.getElementById('read-close');
@@ -89,10 +78,7 @@
 
                 let pdfJsPromise = null;
                 let session = 0; // bumped on every open/close so stale async work can bail out
-                // null = closed (thumbnail only), 'preview' = inline low-quality
-                // scroll, 'read' = full-screen high-quality reader.
-                let mode = null;
-                let openedAs = null;
+                let isOpen = false;
                 let pdfDoc = null;
                 let numPages = 0;
                 let zoom = 1;
@@ -169,11 +155,7 @@
                     // otherwise the browser upscales a low-res bitmap and text
                     // turns blurry. Capped so huge zoomed pages stay under
                     // mobile browsers' canvas size limits.
-                    // The inline preview is deliberately low quality (1x) to
-                    // keep it light; read mode renders at full density.
-                    let outputScale = mode === 'read'
-                        ? Math.min(Math.max(window.devicePixelRatio || 1, 2), 3)
-                        : 1;
+                    let outputScale = Math.min(Math.max(window.devicePixelRatio || 1, 2), 3);
                     const maxPixels = 16 * 1024 * 1024;
                     outputScale = Math.min(outputScale, Math.sqrt(maxPixels / (viewport.width * viewport.height)));
 
@@ -271,50 +253,16 @@
                     });
                 }
 
-                // Switches the shell between the inline preview and the
-                // full-screen reader (or hides it when next is null).
-                function applyLayout(next) {
-                    mode = next;
-                    const full = next === 'read';
-
-                    previewBtn.hidden = next !== null;
-                    shell.hidden = next === null;
-                    shell.classList.toggle('fixed', full);
-                    shell.classList.toggle('inset-0', full);
-                    shell.classList.toggle('z-50', full);
-                    viewerContainer.style.maxHeight = full ? '' : '62vh';
-                    expandBtn.hidden = full;
-                    closeLabel.textContent = full && openedAs === 'preview' ? '{{ __('Back to preview') }}' : '{{ __('Close') }}';
-                    document.documentElement.style.overflow = full ? 'hidden' : '';
-                }
-
-                // Re-fit and re-render every page, e.g. after the available width
-                // or the quality changed. The PDF itself is not downloaded again.
-                async function relayout() {
-                    if (!pdfDoc || !numPages) return;
-                    const mySession = session;
-                    await fit();
-                    if (mySession !== session) return;
-                    resizeWrappers();
-                    setupObserver();
-                    goToPage(currentPage);
-                }
-
-                async function openReader(target) {
-                    if (mode === target) return;
-
-                    // Already open (or still loading): just change the layout.
-                    if (mode !== null) {
-                        zoom = 1;
-                        applyLayout(target);
-                        await relayout();
-                        return;
-                    }
-
-                    openedAs = target;
+                async function openReader() {
+                    if (isOpen) return;
+                    isOpen = true;
                     const mySession = ++session;
 
-                    applyLayout(target);
+                    startPanel.hidden = true;
+                    shell.hidden = false;
+                    // Read mode: the reader takes over the whole screen.
+                    shell.classList.add('fixed', 'inset-0', 'z-50');
+                    document.documentElement.style.overflow = 'hidden';
                     setStatus('{{ __('Loading document…') }}', true);
                     pagesContainer.hidden = true;
 
@@ -351,19 +299,10 @@
                 }
 
                 // Closing frees the PDF, every rendered canvas and the observer,
-                // so a reader who stops reading stops costing memory. From read
-                // mode it first steps back to the inline preview if that is
-                // where the reader came from.
-                async function closeReader() {
-                    if (mode === null) return;
-
-                    if (mode === 'read' && openedAs === 'preview') {
-                        zoom = 1;
-                        applyLayout('preview');
-                        await relayout();
-                        return;
-                    }
-
+                // so a reader who stops reading stops costing memory.
+                function closeReader() {
+                    if (!isOpen) return;
+                    isOpen = false;
                     session++;
 
                     if (observer) { observer.disconnect(); observer = null; }
@@ -374,24 +313,32 @@
                     if (pdfDoc) { pdfDoc.destroy(); pdfDoc = null; }
                     numPages = 0;
                     zoom = 1;
-                    openedAs = null;
 
-                    applyLayout(null);
+                    shell.classList.remove('fixed', 'inset-0', 'z-50');
+                    shell.hidden = true;
+                    startPanel.hidden = false;
+                    document.documentElement.style.overflow = '';
                 }
 
-                previewBtn.addEventListener('click', () => openReader('preview'));
-                peekBtn.addEventListener('click', () => openReader('preview'));
-                startBtn.addEventListener('click', () => openReader('read'));
-                expandBtn.addEventListener('click', () => openReader('read'));
+                startBtn.addEventListener('click', openReader);
+                document.getElementById('read-preview').addEventListener('click', openReader);
                 closeBtn.addEventListener('click', closeReader);
-                document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && mode === 'read') closeReader(); });
+                document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeReader(); });
                 viewerContainer.addEventListener('scroll', onScroll);
 
                 // Rotating a phone or resizing the window re-fits the pages.
                 let resizeTimer = null;
                 window.addEventListener('resize', () => {
                     window.clearTimeout(resizeTimer);
-                    resizeTimer = window.setTimeout(relayout, 200);
+                    resizeTimer = window.setTimeout(async () => {
+                        if (!isOpen || !pdfDoc || !numPages) return;
+                        const mySession = session;
+                        await fit();
+                        if (mySession !== session) return;
+                        resizeWrappers();
+                        setupObserver();
+                        goToPage(currentPage);
+                    }, 200);
                 });
 
                 prevBtn.addEventListener('click', () => goToPage(currentPage - 1));
