@@ -97,19 +97,7 @@ class ResourceController extends Controller
         $user = auth()->user();
         $userVote = $user ? ResourceVote::where('user_id', $user->id)->where('resource_id', $resource->id)->value('value') : null;
 
-        $related = Resource::approved()
-            ->where('id', '!=', $resource->id)
-            ->where(function ($q) use ($resource) {
-                $q->where('resource_type_id', $resource->resource_type_id);
-
-                if ($resource->course_id) {
-                    $q->orWhere('course_id', $resource->course_id);
-                }
-            })
-            ->with(['resourceType'])
-            ->latest()
-            ->limit(6)
-            ->get();
+        $related = $resource->relatedResources();
 
         return view('resources.show', [
             'resource' => $resource,

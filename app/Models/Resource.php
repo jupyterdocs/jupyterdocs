@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 
 #[ObservedBy(ResourceObserver::class)]
@@ -80,6 +81,68 @@ class Resource extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class);
+    }
+
+    /**
+     * Approved documents on the same topic or unit, best match first.
+     *
+     * Relevance comes from the course (the unit) and from shared tags, which
+     * are generated from the title and description; multi-word tags like
+     * "operating systems" are far more specific than single words so they
+     * weigh more. A document must clear a topical threshold to appear at all,
+     * so sharing only a resource type or university never qualifies — those
+     * only break ties between topical matches.
+     */
+    public function relatedResources(int $limit = 6): Collection
+    {
+        $tags = $this->tags;
+        $tagIds = $tags->pluck('id');
+
+        if (! $this->course_id && $tagIds->isEmpty()) {
+            return new Collection;
+        }
+
+        $candidates = static::approved()
+            ->where('id', '!=', $this->id)
+            ->where(function (Builder $q) use ($tagIds) {
+                if ($this->course_id) {
+                    $q->orWhere('course_id', $this->course_id);
+                }
+
+                if ($tagIds->isNotEmpty()) {
+                    $q->orWhereHas('tags', fn (Builder $t) => $t->whereIn('tags.id', $tagIds));
+                }
+            })
+            ->with(['resourceType', 'tags:id,name'])
+            ->latest()
+            ->limit(60)
+            ->get();
+
+        $mine = $tags->keyBy('id');
+
+        return $candidates
+            ->map(function (self $candidate) use ($mine) {
+                $topical = $this->course_id && $candidate->course_id === $this->course_id ? 6.0 : 0.0;
+
+                foreach ($candidate->tags as $tag) {
+                    if ($mine->has($tag->id)) {
+                        $topical += str_contains($tag->name, ' ') ? 3.0 : 1.5;
+                    }
+                }
+
+                $candidate->setAttribute('relevance', $topical);
+
+                if ($topical >= 2.0) {
+                    $candidate->relevance += ($candidate->university_id && $candidate->university_id === $this->university_id ? 1.0 : 0.0)
+                        + ($candidate->resource_type_id === $this->resource_type_id ? 0.5 : 0.0);
+                }
+
+                return $candidate;
+            })
+            ->filter(fn (self $candidate) => $candidate->relevance >= 2.0)
+            ->sortByDesc('relevance')
+            ->take($limit)
+            ->values();
     }
 
     public function downloads(): HasMany
