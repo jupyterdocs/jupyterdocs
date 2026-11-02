@@ -48,7 +48,9 @@
                 </div>
             </div>
             <div id="viewer-container" class="flex-1 overflow-y-auto overscroll-contain">
-                <p id="viewer-status" class="p-10 text-center text-sm text-jd-ink-muted dark:text-sage font-serif italic">{{ __('Loading document…') }}</p>
+                <div id="viewer-status" class="py-16 flex justify-center">
+                    <x-planet-loader :size="6" :label="__('Loading document…')" />
+                </div>
                 <div id="pages-container" class="flex flex-col items-center gap-4 p-1 sm:p-4" hidden></div>
             </div>
         </div>
@@ -106,6 +108,14 @@
                         });
                     }
                     return pdfJsPromise;
+                }
+
+                // The status area is the planet loader plus its caption; on
+                // failure the planet goes away and only the message stays.
+                function setStatus(text, loading) {
+                    status.hidden = false;
+                    status.querySelector('.jd-planet').hidden = !loading;
+                    status.querySelector('[data-loader-label]').textContent = text;
                 }
 
                 function stride() {
@@ -253,8 +263,7 @@
                     // Read mode: the reader takes over the whole screen.
                     shell.classList.add('fixed', 'inset-0', 'z-50');
                     document.documentElement.style.overflow = 'hidden';
-                    status.hidden = false;
-                    status.textContent = '{{ __('Loading document…') }}';
+                    setStatus('{{ __('Loading document…') }}', true);
                     pagesContainer.hidden = true;
 
                     try {
@@ -284,7 +293,7 @@
                         setCurrentPage(1);
                     } catch (err) {
                         if (mySession !== session) return;
-                        status.textContent = '{{ __('Could not load this document for online viewing.') }}';
+                        setStatus('{{ __('Could not load this document for online viewing.') }}', false);
                         console.error(err);
                     }
                 }
@@ -356,17 +365,8 @@
             })();
         </script>
     @elseif (in_array($resource->conversion_status, ['pending', 'processing']))
-        <div class="p-16 text-center">
-            <div class="mx-auto w-20 h-24 bg-jd-surface-2 dark:bg-cypress rounded border border-pine/10 dark:border-mint/10 flex items-center justify-center mb-4 overflow-hidden">
-                @if ($resource->thumbnailUrl())
-                    <img src="{{ $resource->thumbnailUrl() }}" class="w-full h-full object-cover object-top" alt="">
-                @else
-                    <svg class="w-10 h-10 text-sage/60 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                @endif
-            </div>
-            <p class="text-sm text-jd-ink-muted dark:text-sage font-serif italic">{{ __("We're preparing an online preview for this document — check back shortly.") }}</p>
+        <div class="p-16 flex justify-center">
+            <x-planet-loader :size="7" :label="__('We\'re preparing an online preview for this document — check back shortly.')" />
         </div>
     @else
         <div class="p-16 text-center">

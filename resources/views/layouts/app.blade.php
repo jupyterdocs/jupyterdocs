@@ -73,6 +73,7 @@
     <body class="font-display text-pine dark:text-mint antialiased">
         <x-brand-mark-defs />
         <x-pwa-splash />
+        <x-page-loader />
 
         <div class="min-h-screen bg-jd-bg dark:bg-abyss transition-colors pb-16 sm:pb-0">
             @include('layouts.navigation')

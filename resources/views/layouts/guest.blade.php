@@ -43,6 +43,7 @@
     <body class="font-display text-pine dark:text-mint antialiased">
         <x-brand-mark-defs />
         <x-pwa-splash />
+        <x-page-loader />
 
         <div class="min-h-screen flex flex-col bg-jd-bg dark:bg-abyss transition-colors">
             <header class="safe-top px-6 py-5 flex items-center justify-between">

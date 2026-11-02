@@ -219,3 +219,144 @@ html.show-splash #pwa-splash .splash-ring {
     border-radius: 2px;
     padding: 0 1px;
 }
+
+/* Planet loader: a ringed planet with orbiting moons and twinkling stars.
+   Pure CSS so it works anywhere (page transitions, the reader, previews).
+   Sized through --jd-planet-size on the element. */
+.jd-planet {
+    --jd-planet-size: 6rem;
+    position: relative;
+    width: var(--jd-planet-size);
+    height: var(--jd-planet-size);
+    flex-shrink: 0;
+}
+
+.jd-planet__core {
+    position: absolute;
+    inset: 30%;
+    z-index: 1;
+    border-radius: 9999px;
+    background: radial-gradient(circle at 30% 28%, #DAF1DE 0%, #8EB69B 28%, #235347 66%, #0A2622 100%);
+    box-shadow: 0 0 1.25rem rgba(142, 182, 155, 0.35);
+    animation: jd-planet-bob 3.2s ease-in-out infinite;
+}
+
+.jd-planet__ring {
+    position: absolute;
+    inset: 8%;
+    border-radius: 9999px;
+    border: 2px solid rgba(217, 161, 92, 0.85);
+    transform: rotate(-22deg) scaleY(0.3);
+}
+
+/* The far half of the ring sits behind the planet, the near half in front. */
+.jd-planet__ring--back {
+    z-index: 0;
+    clip-path: inset(0 0 50% 0);
+    opacity: 0.55;
+}
+
+.jd-planet__ring--front {
+    z-index: 2;
+    clip-path: inset(50% 0 0 0);
+}
+
+.jd-planet__orbit {
+    position: absolute;
+    z-index: 3;
+    border-radius: 9999px;
+    animation: jd-planet-orbit 2.6s linear infinite;
+}
+
+.jd-planet__orbit--a { inset: 0; }
+
+.jd-planet__orbit--b {
+    inset: 14%;
+    animation-duration: 4.2s;
+    animation-direction: reverse;
+}
+
+.jd-planet__moon {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 0.4em;
+    height: 0.4em;
+    min-width: 5px;
+    min-height: 5px;
+    transform: translate(-50%, -50%);
+    border-radius: 9999px;
+    background: #F0BE7D;
+    box-shadow: 0 0 0.5rem rgba(240, 190, 125, 0.9);
+    font-size: calc(var(--jd-planet-size) / 12);
+}
+
+.jd-planet__orbit--b .jd-planet__moon {
+    background: #DAF1DE;
+    box-shadow: 0 0 0.5rem rgba(218, 241, 222, 0.9);
+    font-size: calc(var(--jd-planet-size) / 16);
+}
+
+.jd-planet__star {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 9999px;
+    background: #8EB69B;
+    animation: jd-planet-twinkle 1.8s ease-in-out infinite;
+}
+
+.jd-planet__star:nth-of-type(1) { top: 6%; left: 18%; }
+.jd-planet__star:nth-of-type(2) { top: 80%; left: 8%; animation-delay: 0.6s; }
+.jd-planet__star:nth-of-type(3) { top: 22%; right: 4%; animation-delay: 1.2s; }
+
+@keyframes jd-planet-orbit {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes jd-planet-bob {
+    0%, 100% { transform: translateY(-3%); }
+    50% { transform: translateY(3%); }
+}
+
+@keyframes jd-planet-twinkle {
+    0%, 100% { opacity: 0.15; transform: scale(0.7); }
+    50% { opacity: 1; transform: scale(1.4); }
+}
+
+/* Full-screen loader shown while navigating between pages. */
+#page-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: rgba(245, 250, 246, 0.82);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, visibility 0s linear 0.2s;
+}
+
+.dark #page-loader {
+    background: rgba(10, 38, 34, 0.85);
+}
+
+#page-loader.is-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .jd-planet__core,
+    .jd-planet__star { animation: none; }
+
+    .jd-planet__orbit { animation-duration: 12s; }
+}
