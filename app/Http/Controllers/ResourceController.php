@@ -147,19 +147,61 @@ class ResourceController extends Controller
      * for native PDFs, or the CloudConvert/Gotenberg-converted copy for
      * everything else. resources.read always points here so pdf.js never
      * needs to know which one it's getting.
+     *
+     * Range requests matter a lot here: pdf.js jumps straight to a PDF's
+     * trailing xref table and then fetches only the byte ranges it needs
+     * for the page being viewed, so a big document can show page 1 almost
+     * immediately instead of waiting on a full download. Storage::response()
+     * only ever does a full 200 StreamedResponse with no Range support, so
+     * both branches below build one that actually honours Range.
      */
     private function streamInline(Resource $resource)
     {
         $path = $resource->previewSourcePath();
-        $disk = Storage::disk(config('filesystems.resource_disk'));
+        $diskName = config('filesystems.resource_disk');
+        $disk = Storage::disk($diskName);
 
         abort_unless($path && $disk->exists($path), 404);
 
-        return $disk->response(
-            $path,
-            $resource->title.'.pdf',
-            ['Content-Disposition' => 'inline; filename="'.$resource->title.'.pdf"']
-        );
+        $disposition = 'inline; filename="'.$resource->title.'.pdf"';
+
+        if (in_array($diskName, ['s3', 'r2'], true)) {
+            return $this->streamS3Range($disk, $path, $disposition);
+        }
+
+        return response()->file($disk->path($path), ['Content-Disposition' => $disposition]);
+    }
+
+    /**
+     * Proxies a single Range request straight through to S3/R2 via the
+     * underlying AWS client, so the only bytes pulled through this server
+     * are the chunk pdf.js actually asked for — never the whole file.
+     */
+    private function streamS3Range($disk, string $path, string $disposition)
+    {
+        $range = request()->header('Range');
+
+        $args = ['Bucket' => $disk->getBucket(), 'Key' => $path];
+        if ($range) {
+            $args['Range'] = $range;
+        }
+
+        $result = $disk->getClient()->getObject($args);
+
+        $headers = [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => $disposition,
+            'Accept-Ranges' => 'bytes',
+            'Content-Length' => $result['ContentLength'],
+        ];
+
+        if ($range && isset($result['ContentRange'])) {
+            $headers['Content-Range'] = $result['ContentRange'];
+        }
+
+        return response()->stream(function () use ($result) {
+            fpassthru($result['Body']->detach());
+        }, $range ? 206 : 200, $headers);
     }
 
     public function create()
