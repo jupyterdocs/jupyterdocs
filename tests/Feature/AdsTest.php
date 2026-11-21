@@ -60,9 +60,9 @@ class AdsTest extends TestCase
             ->assertSee('google.com, pub-1234567890123456, DIRECT, f08c47fec0942fa0', false);
     }
 
-    public function test_ads_txt_is_not_found_while_ads_are_off(): void
+    public function test_ads_txt_is_not_found_without_a_publisher_id(): void
     {
-        $this->configure(['ads.enabled' => false]);
+        $this->configure(['ads.client' => null]);
 
         $this->get('/ads.txt')->assertNotFound();
     }
