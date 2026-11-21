@@ -1,4 +1,4 @@
-<svg width="0" height="0" style="position:absolute">
+<svg width="0" height="0" class="absolute" aria-hidden="true">
     <defs>
         <radialGradient id="planetBody" cx="35%" cy="28%" r="78%">
             <stop offset="0%" stop-color="#235347"/>

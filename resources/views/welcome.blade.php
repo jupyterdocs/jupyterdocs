@@ -26,6 +26,48 @@
         <meta name="twitter:title" content="{{ $metaTitle }}">
         <meta name="twitter:description" content="{{ $metaDescription }}">
 
+        @php
+            $faqs = [
+                ['Is JupyterDocs free?', 'Searching the archive and reading document previews online costs nothing. Downloads are unlocked by contributing: every account starts with a free download, and two approved uploads of your own unlock downloads across the archive.'],
+                ['Do I need an account to upload a document?', 'No. Guests can upload lecture notes, past papers and study guides without an account. Creating a free account lets you track your uploads and unlock downloads.'],
+                ['What kinds of files can I upload?', 'PDF, Word, PowerPoint, Excel and plain text files. Word, PowerPoint and Excel files are converted to PDF so they can be previewed page by page in your browser.'],
+                ['How long does it take for an upload to appear?', 'An admin reviews every upload before it goes public, usually within a day. This keeps the archive clean and free of spam and duplicates.'],
+                ['Can I read a document before I download it?', 'Yes. Approved PDFs open in an online reader that shows the document page by page, so you can check that it is the right study material before you use a download.'],
+                ['How do I find notes for my course or unit?', 'Use the search box to look through titles, descriptions and tags, or browse the archive by type of resource. Each document page also lists related documents on the same topic or course.'],
+                ['What if the document I need is not on JupyterDocs yet?', 'You can request a missing document and upvote requests from other students. When someone uploads it, everyone who wanted it benefits.'],
+            ];
+            $orgSameAs = array_values(array_filter(config('site.social')));
+        @endphp
+
+        <script type="application/ld+json">
+            {!! json_encode([
+                '@context' => 'https://schema.org',
+                '@graph' => [
+                    [
+                        '@type' => 'Organization',
+                        '@id' => url('/').'#organization',
+                        'name' => config('app.name', 'JupyterDocs'),
+                        'url' => url('/'),
+                        'logo' => asset('icons/icon-512.png'),
+                        'description' => 'A free student archive of lecture notes, past papers and study guides.',
+                        'contactPoint' => [
+                            '@type' => 'ContactPoint',
+                            'contactType' => 'customer support',
+                            'url' => route('contact'),
+                        ],
+                    ] + ($orgSameAs ? ['sameAs' => $orgSameAs] : []),
+                    [
+                        '@type' => 'FAQPage',
+                        'mainEntity' => array_map(fn ($faq) => [
+                            '@type' => 'Question',
+                            'name' => $faq[0],
+                            'acceptedAnswer' => ['@type' => 'Answer', 'text' => $faq[1]],
+                        ], $faqs),
+                    ],
+                ],
+            ], JSON_UNESCAPED_SLASHES) !!}
+        </script>
+
         <script type="application/ld+json">
             {!! json_encode([
                 '@context' => 'https://schema.org',
@@ -66,7 +108,10 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+        <!-- media=print + onload swap: the font CSS no longer blocks first paint -->
+        <link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+        <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
+        <x-analytics />
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -104,7 +149,7 @@
                     <p class="font-mono text-xs text-jd-ink-muted dark:text-sage">No account required to upload &middot; Reviewed within a day</p>
                 </div>
                 <div class="flex justify-center">
-                    <svg class="w-64 sm:w-80" viewBox="0 0 640 640" style="filter: drop-shadow(0 20px 40px rgba(11,43,38,0.16))">
+                    <svg class="w-64 sm:w-80 jd-mark-shadow" viewBox="0 0 640 640">
                         <title>JupyterDocs mark</title>
                         <use href="#jupyterMark"/>
                     </svg>
@@ -188,6 +233,52 @@
                             </span>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- ============ What you will find ============ -->
+            <section class="max-w-6xl mx-auto px-5 py-16 sm:py-20 border-b border-pine/10 dark:border-mint/10">
+                <div class="max-w-[60ch] mb-10">
+                    <p class="text-xs font-semibold tracking-[0.13em] uppercase text-jd-ink-muted dark:text-sage">What you will find</p>
+                    <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mt-2">Free lecture notes, past papers and study guides</h2>
+                    <p class="text-jd-ink-muted dark:text-sage mt-2.5 leading-relaxed">JupyterDocs is a student-built archive of the study material that is usually scattered across group chats and personal drives. Every document is uploaded by a student, checked by an admin, and searchable in one place.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 rounded-2xl p-5">
+                        <h3 class="font-bold mb-2">Lecture notes</h3>
+                        <p class="text-sm text-jd-ink-muted dark:text-sage leading-relaxed">Typed notes, slides and handouts from real courses, shared by students who sat the same classes and know what mattered.</p>
+                    </div>
+                    <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 rounded-2xl p-5">
+                        <h3 class="font-bold mb-2">Past papers</h3>
+                        <p class="text-sm text-jd-ink-muted dark:text-sage leading-relaxed">Previous exam and test papers to practise with, so you know the format and the style of question before the real thing.</p>
+                    </div>
+                    <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 rounded-2xl p-5">
+                        <h3 class="font-bold mb-2">Study guides</h3>
+                        <p class="text-sm text-jd-ink-muted dark:text-sage leading-relaxed">Revision summaries and worked examples that pull a whole unit into a few pages for the night before an exam.</p>
+                    </div>
+                    <div class="bg-white dark:bg-pine border border-pine/10 dark:border-mint/10 rounded-2xl p-5">
+                        <h3 class="font-bold mb-2">Textbooks and handbooks</h3>
+                        <p class="text-sm text-jd-ink-muted dark:text-sage leading-relaxed">Course handbooks and reference material, with page counts and previews so you can judge a document before you download it.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ FAQ ============ -->
+            <section class="max-w-3xl mx-auto px-5 py-16 sm:py-20 border-b border-pine/10 dark:border-mint/10">
+                <p class="text-xs font-semibold tracking-[0.13em] uppercase text-jd-ink-muted dark:text-sage">Questions</p>
+                <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mt-2 mb-8">Frequently asked questions</h2>
+
+                <div class="divide-y divide-pine/10 dark:divide-mint/10 border-y border-pine/10 dark:border-mint/10">
+                    @foreach ($faqs as $faq)
+                        <details class="group py-4">
+                            <summary class="flex cursor-pointer items-center justify-between gap-4 font-bold list-none">
+                                <span>{{ $faq[0] }}</span>
+                                <span class="shrink-0 text-moss dark:text-sage transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+                            </summary>
+                            <p class="mt-3 text-sm text-jd-ink-muted dark:text-sage leading-relaxed">{{ $faq[1] }}</p>
+                        </details>
+                    @endforeach
                 </div>
             </section>
 

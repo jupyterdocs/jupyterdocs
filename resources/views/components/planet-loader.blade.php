@@ -1,7 +1,8 @@
-@props(['size' => 6, 'label' => null])
+@props(['size' => 'md', 'label' => null])
 
 <div {{ $attributes->merge(['class' => 'inline-flex flex-col items-center gap-3']) }} role="status" aria-live="polite">
-    <div class="jd-planet" style="--jd-planet-size: {{ $size }}rem" aria-hidden="true">
+    {{-- size: md (6rem), lg (7rem) or xl (8rem), set in CSS so no inline style is needed. --}}
+    <div class="jd-planet jd-planet--{{ $size }}" aria-hidden="true">
         <span class="jd-planet__star"></span>
         <span class="jd-planet__star"></span>
         <span class="jd-planet__star"></span>

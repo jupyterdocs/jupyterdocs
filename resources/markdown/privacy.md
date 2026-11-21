@@ -18,6 +18,8 @@ This Privacy Policy explains what information JupyterDocs collects, how we use i
 
 **Files sent for preview conversion.** If you upload a PowerPoint, Word, or Excel file, we send a copy to a document-conversion service (see Section 3) to generate a page-by-page PDF preview. The converted PDF is then stored and served like any other file on the Service.
 
+**Analytics.** If enabled, we use Google Analytics to understand which pages are visited and how people find JupyterDocs. Google Analytics uses cookies and collects information such as your approximate location, device and browser, and the pages you view. You can opt out with the [Google Analytics opt-out add-on](https://tools.google.com/dlpage/gaoptout).
+
 **Advertising.** JupyterDocs is free to use and is supported by advertising. We show ads from Google AdSense on document pages and in browse and search results. Google and its partners may use cookies and similar technologies to show ads, including ads based on your visits to this and other websites, and to measure how ads perform. We don't give advertisers your name, email address, or account details. You can manage or turn off personalized ads in [Google's ad settings](https://adssettings.google.com) or learn more about how Google uses information from sites that use its services at [policies.google.com/technologies/partner-sites](https://policies.google.com/technologies/partner-sites). Ads are never shown inside the document reader.
 
 ## 2. How we use your information

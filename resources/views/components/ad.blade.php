@@ -14,8 +14,7 @@
          beside or below the document, never over it or inside the full-screen reader. --}}
     <aside {{ $attributes->merge(['class' => 'jd-ad']) }} data-ad aria-label="{{ __('Advertisement') }}">
         <p class="jd-ad__label">{{ __('Advertisement') }}</p>
-        <ins class="adsbygoogle"
-             style="display:block"
+        <ins class="adsbygoogle block"
              data-ad-client="{{ $client }}"
              data-ad-slot="{{ $unit }}"
              data-ad-format="auto"

@@ -1,7 +1,7 @@
 {{-- Planet loader shown while the browser navigates to another page. Waits a
      moment before appearing so fast navigations never flash it. --}}
 <div id="page-loader" aria-hidden="true">
-    <x-planet-loader :size="7" :label="__('Travelling to the next page…')" />
+    <x-planet-loader size="lg" :label="__('Travelling to the next page…')" />
 </div>
 
 <script>

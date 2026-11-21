@@ -6,7 +6,7 @@
         <div id="reader-start">
             {{-- Low-res first-page preview: the thumbnail is already cached/loaded, so this costs no extra data. --}}
             <button type="button" id="read-preview" class="relative block w-full bg-jd-surface-3 dark:bg-abyss px-3 pt-4 sm:px-6 sm:pt-6 text-left cursor-pointer" aria-label="{{ __('Start reading') }}">
-                <div class="relative mx-auto max-w-xl overflow-hidden bg-white dark:bg-pine shadow-md" style="max-height: 62vh;">
+                <div class="relative mx-auto max-w-xl overflow-hidden bg-white dark:bg-pine shadow-md max-h-[62vh]">
                     @if ($resource->thumbnailUrl())
                         <img src="{{ $resource->thumbnailUrl() }}" class="block w-full h-auto" alt="{{ __('Preview of :title', ['title' => $resource->title]) }}" decoding="async">
                     @else
@@ -49,7 +49,7 @@
             </div>
             <div id="viewer-container" class="flex-1 overflow-y-auto overscroll-contain">
                 <div id="viewer-status" class="py-16 flex justify-center">
-                    <x-planet-loader :size="6" :label="__('Loading document…')" />
+                    <x-planet-loader :label="__('Loading document…')" />
                 </div>
                 <div id="pages-container" class="flex flex-col items-center gap-4 p-1 sm:p-4" hidden></div>
             </div>
@@ -366,7 +366,7 @@
         </script>
     @elseif (in_array($resource->conversion_status, ['pending', 'processing']))
         <div class="p-16 flex justify-center">
-            <x-planet-loader :size="7" :label="__('We\'re preparing an online preview for this document — check back shortly.')" />
+            <x-planet-loader size="lg" :label="__('We\'re preparing an online preview for this document — check back shortly.')" />
         </div>
     @else
         <div class="p-16 text-center">

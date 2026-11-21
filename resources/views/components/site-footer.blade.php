@@ -13,6 +13,15 @@
             @endunless
         </div>
 
+        @php($social = array_filter(config('site.social')))
+        @if ($social)
+            <nav aria-label="{{ __('Social media') }}" class="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-display font-medium text-jd-ink-muted dark:text-sage">
+                @foreach ($social as $network => $url)
+                    <a href="{{ $url }}" rel="me noopener" target="_blank" class="hover:text-pine dark:hover:text-mint transition">{{ ['x' => 'X', 'linkedin' => 'LinkedIn', 'youtube' => 'YouTube'][$network] ?? ucfirst($network) }}</a>
+                @endforeach
+            </nav>
+        @endif
+
         <nav aria-label="Legal" class="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-display font-medium text-jd-ink-muted dark:text-sage">
             <a href="{{ route('terms') }}" class="hover:text-pine dark:hover:text-mint transition">{{ __('Terms of Service') }}</a>
             <a href="{{ route('privacy') }}" class="hover:text-pine dark:hover:text-mint transition">{{ __('Privacy Policy') }}</a>

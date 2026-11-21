@@ -34,6 +34,13 @@ Route::get('/search/suggest', SearchSuggestController::class)->middleware('throt
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
+// A plain-language summary of the site for AI assistants and search engines.
+Route::get('/llms.txt', function () {
+    $body = view('llms')->render();
+
+    return response($body, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+})->name('llms.txt');
+
 // AdSense checks this file to confirm who is allowed to sell this site's ad space.
 Route::get('/ads.txt', function () {
     abort_unless(config('ads.enabled') && config('ads.client'), 404);

@@ -393,3 +393,22 @@ html.show-splash #pwa-splash .splash-ring {
 .jd-ad:has(ins[data-ad-status="unfilled"]) {
     display: none;
 }
+
+/* Sizes and effects that used to be inline style attributes. */
+.jd-planet--lg { --jd-planet-size: 7rem; }
+.jd-planet--xl { --jd-planet-size: 8rem; }
+
+.jd-planet__orbit--splash {
+    --jd-planet-size: 8rem;
+    width: 8rem;
+    height: 8rem;
+    inset: auto;
+}
+
+.jd-mark-shadow {
+    filter: drop-shadow(0 20px 40px rgba(11, 43, 38, 0.16));
+}
+
+#pwa-splash .splash-logo {
+    filter: drop-shadow(0 12px 24px rgba(11, 43, 38, 0.25));
+}
