@@ -17,8 +17,15 @@ class TrackUserActivity
 
     public function handle(Request $request, Closure $next): Response
     {
-        $response = $next($request);
+        return $next($request);
+    }
 
+    /**
+     * The bookkeeping (a read, a write and a user update) runs after the
+     * response has been sent, so signed-in members never wait on it.
+     */
+    public function terminate(Request $request, Response $response): void
+    {
         $user = $request->user();
 
         if ($user) {
@@ -58,7 +65,5 @@ class TrackUserActivity
 
             $user->forceFill(['last_seen_at' => $now])->saveQuietly();
         }
-
-        return $response;
     }
 }
