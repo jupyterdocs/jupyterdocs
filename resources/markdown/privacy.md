@@ -18,7 +18,7 @@ This Privacy Policy explains what information JupyterDocs collects, how we use i
 
 **Files sent for preview conversion.** If you upload a PowerPoint, Word, or Excel file, we send a copy to a document-conversion service (see Section 3) to generate a page-by-page PDF preview. The converted PDF is then stored and served like any other file on the Service.
 
-We don't currently run advertising and don't collect data for ad-targeting.
+**Advertising.** JupyterDocs is free to use and is supported by advertising. We show ads from Google AdSense on document pages and in browse and search results. Google and its partners may use cookies and similar technologies to show ads, including ads based on your visits to this and other websites, and to measure how ads perform. We don't give advertisers your name, email address, or account details. You can manage or turn off personalized ads in [Google's ad settings](https://adssettings.google.com) or learn more about how Google uses information from sites that use its services at [policies.google.com/technologies/partner-sites](https://policies.google.com/technologies/partner-sites). Ads are never shown inside the document reader.
 
 ## 2. How we use your information
 
@@ -37,10 +37,10 @@ We share information with the following providers, only as needed to run Jupyter
 
 - **Cloudflare R2** — stores uploaded files and thumbnail images.
 - **CloudConvert**, and as a backup our own self-hosted conversion servers — receive files temporarily to convert them to PDF for the in-browser preview.
-- **Google** — if you sign in with Google, for authentication only.
+- **Google** — if you sign in with Google, for authentication; and, through Google AdSense, to show and measure ads (see Section 1).
 - **Our email provider** — sends verification, password-reset, and notification email on our behalf.
 
-We don't sell your personal information, and we don't share it with third parties for their own marketing.
+We don't sell your personal information. Advertising partners such as Google may collect information directly from your browser when ads load, as described in Section 1.
 
 ## 4. Data retention and deletion
 

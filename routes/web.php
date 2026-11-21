@@ -34,6 +34,13 @@ Route::get('/search/suggest', SearchSuggestController::class)->middleware('throt
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
+// AdSense checks this file to confirm who is allowed to sell this site's ad space.
+Route::get('/ads.txt', function () {
+    abort_unless(config('ads.enabled') && config('ads.client'), 404);
+
+    return response('google.com, '.str_replace('ca-', '', config('ads.client')).", DIRECT, f08c47fec0942fa0\n", 200, ['Content-Type' => 'text/plain']);
+})->name('ads.txt');
+
 Route::get('/terms', [LegalController::class, 'terms'])->name('terms');
 Route::get('/privacy', [LegalController::class, 'privacy'])->name('privacy');
 Route::get('/copyright', [LegalController::class, 'copyright'])->name('copyright');

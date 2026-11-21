@@ -360,3 +360,36 @@ html.show-splash #pwa-splash .splash-ring {
 
     .jd-planet__orbit { animation-duration: 12s; }
 }
+
+/* Ads: always labelled, kept visually quiet, and collapsed entirely when
+   AdSense has nothing to show so there is never an empty box on the page. */
+.jd-ad {
+    overflow: hidden;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(22, 53, 47, 0.1);
+    background: #ffffff;
+    padding: 0.5rem 0.75rem 0.75rem;
+    text-align: center;
+}
+
+.dark .jd-ad {
+    border-color: rgba(218, 241, 222, 0.1);
+    background: #16352F;
+}
+
+.jd-ad__label {
+    margin-bottom: 0.25rem;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #3F6D5D;
+}
+
+.dark .jd-ad__label {
+    color: #8EB69B;
+}
+
+.jd-ad:has(ins[data-ad-status="unfilled"]) {
+    display: none;
+}

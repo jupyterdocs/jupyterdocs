@@ -128,6 +128,11 @@
                             <x-save-button :resource="$resource" :saved="in_array($resource->id, $savedIds, true)" class="shrink-0 -me-2" />
                         </div>
                     </div>
+
+                    {{-- In-feed ad, spanning the grid row, only between real results. --}}
+                    @if ($loop->iteration % max(config('ads.feed_every'), 1) === 0 && ! $loop->last)
+                        <x-ad placement="feed" class="col-span-full" />
+                    @endif
                 @empty
                     @if ($q)
                         <div class="col-span-full rounded-xl border border-pine/10 dark:border-mint/10 bg-white dark:bg-pine p-6 text-sm text-jd-ink-muted dark:text-sage space-y-2">

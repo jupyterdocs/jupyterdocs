@@ -244,6 +244,8 @@
             {{-- Center: page-by-page viewer --}}
             <main class="flex-1 min-w-0 order-1 lg:order-2 w-full">
                 <x-document-reader :resource="$resource" />
+
+                <x-ad placement="document" class="mt-6" />
             </main>
 
             {{-- Right: related documents --}}
@@ -271,6 +273,8 @@
                 @empty
                     <p class="text-sm text-jd-ink-muted dark:text-sage">{{ __('No related documents yet.') }}</p>
                 @endforelse
+
+                <x-ad placement="sidebar" />
             </aside>
         </div>
     </div>
